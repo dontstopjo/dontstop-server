@@ -27,11 +27,12 @@ pipeline {
                 }
                 // 'my-env-file'이라는 ID를 가진 파일을 envFile이라는 변수로 가져옵니다.
                 withCredentials([file(credentialsId: 'my-env-file', variable: 'envFile')]) {
-                // 가져온 파일을 현재 워크스페이스에 .env라는 이름으로 복사합니다.
-                script {
-                    sh "cp ${envFile} .env"
-                    // 확인용 (보안을 위해 실제 운영 환경에선 cat은 빼는게 좋아요)
-                    sh "ls -la .env"
+                    // 가져온 파일을 현재 워크스페이스에 .env라는 이름으로 복사합니다.
+                    script {
+                        sh "cp ${envFile} .env"
+                        // 확인용 (보안을 위해 실제 운영 환경에선 cat은 빼는게 좋아요)
+                        sh "ls -la .env"
+                    }
                 }
             }
         }
