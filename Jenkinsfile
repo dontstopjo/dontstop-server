@@ -25,13 +25,23 @@ pipeline {
                         error "지원하지 않는 브랜치입니다: ${env.BRANCH_NAME}"
                     }
                 }
+                // 'my-env-file'이라는 ID를 가진 파일을 envFile이라는 변수로 가져옵니다.
+                withCredentials([file(credentialsId: 'my-env-file', variable: 'envFile')]) {
+                    // 가져온 파일을 현재 워크스페이스에 .env라는 이름으로 복사합니다.
+                    script {
+                        sh "cp ${envFile} .env"
+                        // 확인용 (보안을 위해 실제 운영 환경에선 cat은 빼는게 좋아요)
+                        sh "ls -la .env"
+                    }
+                }
             }
         }
 
         stage('2. 도커 이미지 빌드') {
             steps {
                 echo "Building Docker Image: ${env.APP_NAME}:${env.PHASE}"
-                sh "docker build -t ${env.APP_NAME}:${env.PHASE} ."
+                // 현재 폴더(.)에 있는 Dockerfile을 읽어서 빌드합니다.
+                sh "docker build -t ${env.APP_NAME}:${env.PHASE} . "
             }
         }
 
@@ -53,11 +63,13 @@ pipeline {
                         docker run -d \
                         --name ${env.APP_NAME}-${env.PHASE} \
                         -p ${env.PORT}:8080 \
+                        --add-host=host.docker.internal:host-gateway \
+                        --env-file .env \
+                        -e SPRING_PROFILES_ACTIVE=${env.PHASE} \
+                        -e DB_URL=jdbc:mysql://host.docker.internal:3306/${env.DB_NAME} \
                         --memory="1g" \
                         --memory-swap="1g" \
                         --log-opt max-size=10m --log-opt max-file=3 \
-                        -e SPRING_PROFILES_ACTIVE=${env.PHASE} \
-                        -e DB_URL=jdbc:mysql://DB서버IP:3306/${env.DB_NAME} \
                         ${env.APP_NAME}:${env.PHASE}
                     """
                 }
