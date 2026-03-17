@@ -65,10 +65,11 @@ pipeline {
                         -p ${env.PORT}:8080 \
                         --add-host=host.docker.internal:host-gateway \
                         --env-file .env \
+                        -e JAVA_OPTS="-Xmx384M -Xms256M" \
                         -e SPRING_PROFILES_ACTIVE=${env.PHASE} \
                         -e DB_URL=jdbc:mysql://host.docker.internal:3306/${env.DB_NAME} \
-                        --memory="1g" \
-                        --memory-swap="1g" \
+                        --memory="512m" \
+                        --memory-swap="512m" \
                         --log-opt max-size=10m --log-opt max-file=3 \
                         ${env.APP_NAME}:${env.PHASE}
                     """
