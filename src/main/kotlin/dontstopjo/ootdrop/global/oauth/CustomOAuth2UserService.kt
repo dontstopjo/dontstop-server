@@ -1,5 +1,6 @@
 package dontstopjo.ootdrop.global.oauth
 
+import dontstopjo.ootdrop.domain.user.entity.OAuth2Provider
 import dontstopjo.ootdrop.domain.user.entity.User
 import dontstopjo.ootdrop.domain.user.repository.UserRepository
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
@@ -25,15 +26,15 @@ class CustomOAuth2UserService(
      * @return CustomOAuth2User 커스텀 OAuth2 사용자 객체
      */
     override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
-        // 부모 클래스에서 OAuth2 사용자 정보 로드
         val oauth2User = super.loadUser(userRequest)
 
-        val userInfo = GoogleOAuth2UserInfo(oauth2User.attributes)
+        val userInfo = when (userRequest.clientRegistration.registrationId) {
+            "kakao" -> KakaoOAuth2UserInfo(oauth2User.attributes)
+            else -> throw IllegalArgumentException("Unsupported provider")
+        }
 
-        // 사용자 정보 저장 또는 업데이트
         val user = saveOrUpdate(userInfo)
 
-        // 커스텀 OAuth2User 객체 생성 및 반환
         return CustomOAuth2User(
             oauth2User = oauth2User,
             userId = user.id!!,
@@ -50,16 +51,18 @@ class CustomOAuth2UserService(
      * @return User 저장된 사용자 엔티티
      */
     private fun saveOrUpdate(userInfo: OAuth2UserInfo): User {
+        val provider = OAuth2Provider.valueOf(userInfo.getProvider().uppercase())
         val providerId = userInfo.getProviderId()
 
-        // 제공자와 제공자 ID로 기존 사용자 조회
-        val user = userRepository.findByProviderId((providerId))
+        val user = userRepository.findByProviderAndProviderId(provider, providerId)
             ?: User(
-                    email = userInfo.getEmail(),
-                    name = userInfo.getName(),
-                    profileImage = userInfo.getProfileImage(),
-                    providerId = providerId,
-                )
+                email = userInfo.getEmail(),
+                name = userInfo.getName(),
+                profileImage = userInfo.getProfileImage(),
+                provider = provider,
+                providerId = providerId,
+            )
+        user.updateInfo(userInfo.getName(), userInfo.getProfileImage())
         return userRepository.save(user)
     }
 }

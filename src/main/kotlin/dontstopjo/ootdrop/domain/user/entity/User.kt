@@ -19,7 +19,11 @@ class User(
     @Column
     var profileImage: String,
 
-    @Column(nullable = false, unique = true)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    val provider: OAuth2Provider,
+
+    @Column(nullable = false)
     val providerId: String,
 
     @Column(nullable = false)
@@ -33,4 +37,8 @@ class User(
         this.profileImage = profileImage
         this.updatedAt = LocalDateTime.now()
     }
+}
+
+enum class OAuth2Provider {
+    KAKAO
 }
