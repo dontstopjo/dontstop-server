@@ -17,12 +17,12 @@ pipeline {
                         env.PORT = "8000"          // 운영 포트
                         env.PHASE = "prod"         // 운영 단계
                         env.DB_NAME = "ootdrop" // 운영 DB 스키마 이름
-                        env.DOMAIN = "ootdrop.ajswl.website"
+                        env.DOMAIN = "https://ootdrop.ajswl.website"
                     } else if (env.BRANCH_NAME == 'develop') {
                         env.PORT = "8001"          // 스테이징 포트
                         env.PHASE = "stg"          // 스테이징 단계
                         env.DB_NAME = "ootdrop_stg"  // 스테이징 DB 스키마 이름
-                        env.DOMAIN = "ootdrop-stg.ajswl.website"
+                        env.DOMAIN = "https://ootdrop-stg.ajswl.website"
                     } else {
                         error "지원하지 않는 브랜치입니다: ${env.BRANCH_NAME}"
                     }
