@@ -1,6 +1,5 @@
 package dontstopjo.ootdrop.global.oauth
 
-import dontstopjo.ootdrop.domain.user.entity.OAuth2Provider
 import dontstopjo.ootdrop.domain.user.entity.User
 import dontstopjo.ootdrop.domain.user.repository.UserRepository
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
@@ -51,15 +50,13 @@ class CustomOAuth2UserService(
      * @return User 저장된 사용자 엔티티
      */
     private fun saveOrUpdate(userInfo: OAuth2UserInfo): User {
-        val provider = OAuth2Provider.valueOf(userInfo.getProvider().uppercase())
         val providerId = userInfo.getProviderId()
 
-        val user = userRepository.findByProviderAndProviderId(provider, providerId)
+        val user = userRepository.findByProviderId(providerId)
             ?: User(
                 email = userInfo.getEmail(),
                 name = userInfo.getName(),
                 profileImage = userInfo.getProfileImage(),
-                provider = provider,
                 providerId = providerId,
             )
         user.updateInfo(userInfo.getName(), userInfo.getProfileImage())

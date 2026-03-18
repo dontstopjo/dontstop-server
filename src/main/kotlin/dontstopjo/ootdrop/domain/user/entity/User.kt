@@ -10,7 +10,7 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     val email: String,
 
     @Column(nullable = false)
@@ -19,11 +19,7 @@ class User(
     @Column
     var profileImage: String,
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    val provider: OAuth2Provider,
-
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     val providerId: String,
 
     @Column(nullable = false)
@@ -37,8 +33,4 @@ class User(
         this.profileImage = profileImage
         this.updatedAt = LocalDateTime.now()
     }
-}
-
-enum class OAuth2Provider {
-    KAKAO
 }
