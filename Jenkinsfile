@@ -111,7 +111,8 @@ pipeline {
 
     post {
         success {
-            echo "✅ 배포 완료! 주소: http://서버IP:${env.PORT} (DB 스키마: ${env.DB_NAME})"
+            echo "✅ 배포 완료! 주소: https://${env.DOMAIN} (DB 스키마: ${env.DB_NAME})"
+            echo "스웨거 문서: https://${env.DOMAIN}/swagger-ui/index.html)"
         }
         failure {
             echo "❌ 배포 실패! 로그를 확인하세요."
