@@ -92,10 +92,10 @@ class JwtUtil(
     }
 
     /**
-     * JWT 토큰에서 이메일 추출
+     * JWT 토큰에서 providerId 추출
      *
      * @param token JWT 토큰
-     * @return 사용자 이메일
+     * @return 사용자 providerId
      */
     fun getProviderId(token: String): String {
         return getClaims(token).get("providerId", String::class.java)
