@@ -17,13 +17,16 @@ pipeline {
                         env.PORT = "8000"          // 운영 포트
                         env.PHASE = "prod"         // 운영 단계
                         env.DB_NAME = "ootdrop" // 운영 DB 스키마 이름
+                        env.DOMAIN = "ootdrop.ajswl.website"
                     } else if (env.BRANCH_NAME == 'develop') {
                         env.PORT = "8001"          // 스테이징 포트
                         env.PHASE = "stg"          // 스테이징 단계
                         env.DB_NAME = "ootdrop_stg"  // 스테이징 DB 스키마 이름
+                        env.DOMAIN = "ootdrop-stg.ajswl.website"
                     } else {
                         error "지원하지 않는 브랜치입니다: ${env.BRANCH_NAME}"
                     }
+
                 }
                 // 'my-env-file'이라는 ID를 가진 파일을 envFile이라는 변수로 가져옵니다.
                 withCredentials([file(credentialsId: 'my-env-file', variable: 'envFile')]) {
@@ -65,13 +68,42 @@ pipeline {
                         -p ${env.PORT}:8080 \
                         --add-host=host.docker.internal:host-gateway \
                         --env-file .env \
+                        -e JAVA_OPTS="-Xmx384M -Xms256M" \
                         -e SPRING_PROFILES_ACTIVE=${env.PHASE} \
                         -e DB_URL=jdbc:mysql://host.docker.internal:3306/${env.DB_NAME} \
-                        --memory="1g" \
-                        --memory-swap="1g" \
+                        -e DOMAIN=${env.DOMAIN} \
+                        --memory="512m" \
+                        --memory-swap="512m" \
                         --log-opt max-size=10m --log-opt max-file=3 \
                         ${env.APP_NAME}:${env.PHASE}
                     """
+                }
+            }
+        }
+        stage('4. 도커 컨테이너 상태 확인') {
+            steps {
+                script {
+                    echo "⏳ 서버가 시작될 때까지 대기 중... (최대 3분)"
+                        try {
+                            timeout(time: 1, unit: 'MINUTES') {
+                                waitUntil {
+                                // 8080이 아니라 호스트 배포 포트(${env.PORT})로 확인
+                                // -s: 정적(silent), -f: HTTP 에러 시 실패 처리, -o: 출력 버림
+                                    def response = sh(
+                                        script: "curl -s -f http://localhost:${env.PORT}/swagger-ui/index.html || curl -s -f http://localhost:${env.PORT}/",
+                                        returnStatus: true
+                                    )
+                                return (response == 0)
+                            }
+                        }
+                        echo "✅ 서버가 정상적으로 구동되었습니다!"
+                    } catch (err) {
+                        echo "❌ 서버 구동 실패! 도커 로그를 확인합니다."
+                        sh "docker logs ${env.APP_NAME}-${env.PHASE}"
+                        // 컨테이너가 떴는데 응답만 안 오는 걸 수도 있으므로, 실패 시 컨테이너를 중지할지 선택 가능
+                        // sh "docker stop ${env.CONTAINER_NAME}"
+                        error "Application Health Check Failed: ${err.message}"
+                    }
                 }
             }
         }
@@ -79,7 +111,8 @@ pipeline {
 
     post {
         success {
-            echo "✅ 배포 완료! 주소: http://서버IP:${env.PORT} (DB 스키마: ${env.DB_NAME})"
+            echo "✅ 배포 완료! 주소: https://${env.DOMAIN} (DB 스키마: ${env.DB_NAME})"
+            echo "스웨거 문서: https://${env.DOMAIN}/swagger-ui/index.html)"
         }
         failure {
             echo "❌ 배포 실패! 로그를 확인하세요."

@@ -20,12 +20,31 @@ spring:
         default_batch_fetch_size: 100
         jdbc:
           batch_size: 50
+    open-in-view: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: https://${DOMAIN}/login/oauth2/code/google
+            scope:
+              - email
+              - profile
+            authorization-grant-type: authorization_code
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
     tags-sorter: alpha
     operations-sorter: alpha
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-validity: 3600000  # 1시간 (밀리초)
+  refresh-token-validity: 604800000  # 7일 (밀리초)
 
 server:
   port: ${PORT}
@@ -34,3 +53,12 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+cloud:
+  aws:
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+      region: ${AWS_REGION}
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+      endpoint: ${AWS_S3_ENDPOINT:}
