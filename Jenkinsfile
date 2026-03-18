@@ -76,6 +76,33 @@ pipeline {
                 }
             }
         }
+        stage('4. 도커 컨테이너 상태 확인') {
+            steps {
+                script {
+                    echo "⏳ 서버가 시작될 때까지 대기 중... (최대 3분)"
+                        try {
+                            timeout(time: 1, unit: 'MINUTES') {
+                                waitUntil {
+                                // 8080이 아니라 호스트 배포 포트(${env.PORT})로 확인
+                                // -s: 정적(silent), -f: HTTP 에러 시 실패 처리, -o: 출력 버림
+                                    def response = sh(
+                                        script: "curl -s -f http://localhost:${env.PORT}/actuator/health || curl -s -f http://localhost:${env.PORT}/",
+                                        returnStatus: true
+                                    )
+                                return (response == 0)
+                            }
+                        }
+                        echo "✅ 서버가 정상적으로 구동되었습니다!"
+                    } catch (err) {
+                        echo "❌ 서버 구동 실패! 도커 로그를 확인합니다."
+                        sh "docker logs ${env.APP_NAME}-${env.PHASE}"
+                        // 컨테이너가 떴는데 응답만 안 오는 걸 수도 있으므로, 실패 시 컨테이너를 중지할지 선택 가능
+                        // sh "docker stop ${env.CONTAINER_NAME}"
+                        error "Application Health Check Failed: ${err.message}"
+                    }
+                }
+            }
+        }
     }
 
     post {
