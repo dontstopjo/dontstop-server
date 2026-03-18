@@ -11,9 +11,6 @@ class User(
     val id: Long? = null,
 
     @Column(nullable = false)
-    val email: String,
-
-    @Column(nullable = false)
     var name: String,
 
     @Column

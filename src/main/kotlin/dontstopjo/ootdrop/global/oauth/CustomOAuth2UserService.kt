@@ -37,7 +37,7 @@ class CustomOAuth2UserService(
         return CustomOAuth2User(
             oauth2User = oauth2User,
             userId = user.id!!,
-            email = user.email,
+            providerId = user.providerId,
             userName = user.name,
         )
     }
@@ -54,7 +54,6 @@ class CustomOAuth2UserService(
 
         val user = userRepository.findByProviderId(providerId)
             ?: User(
-                email = userInfo.getEmail(),
                 name = userInfo.getName(),
                 profileImage = userInfo.getProfileImage(),
                 providerId = providerId,

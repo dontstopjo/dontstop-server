@@ -24,42 +24,42 @@ class JwtUtil(
      * Access Token 생성
      *
      * @param userId 사용자 ID
-     * @param email 사용자 이메일
+     * @param providerId 유니크키
      * @param role 사용자 권한
      * @return 생성된 Access Token
      */
-    fun generateAccessToken(userId: Long, email: String, role: String): String {
-        return generateToken(userId, email, role, jwtProperties.accessTokenValidity)
+    fun generateAccessToken(userId: Long, providerId: String, role: String): String {
+        return generateToken(userId, providerId, role, jwtProperties.accessTokenValidity)
     }
 
     /**
      * Refresh Token 생성
      *
      * @param userId 사용자 ID
-     * @param email 사용자 이메일
+     * @param providerId 유니크키
      * @param role 사용자 권한
      * @return 생성된 Refresh Token
      */
-    fun generateRefreshToken(userId: Long, email: String, role: String): String {
-        return generateToken(userId, email, role, jwtProperties.refreshTokenValidity)
+    fun generateRefreshToken(userId: Long, providerId: String, role: String): String {
+        return generateToken(userId, providerId, role, jwtProperties.refreshTokenValidity)
     }
 
     /**
      * JWT 토큰 생성 내부 메서드
      *
      * @param userId 사용자 ID
-     * @param email 사용자 이메일
+     * @param providerId 사용자 이메일
      * @param role 사용자 권한
      * @param validityInMilliseconds 토큰 유효 시간 (밀리초)
      * @return 생성된 JWT 토큰
      */
-    private fun generateToken(userId: Long, email: String, role: String, validityInMilliseconds: Long): String {
+    private fun generateToken(userId: Long, providerId: String, role: String, validityInMilliseconds: Long): String {
         val now = Date()
         val validity = Date(now.time + validityInMilliseconds)
 
         return Jwts.builder()
             .subject(userId.toString())
-            .claim("email", email)
+            .claim("providerId", providerId)
             .claim("role", role)
             .issuedAt(now)
             .expiration(validity)
@@ -97,8 +97,8 @@ class JwtUtil(
      * @param token JWT 토큰
      * @return 사용자 이메일
      */
-    fun getEmail(token: String): String {
-        return getClaims(token).get("email", String::class.java)
+    fun getProviderId(token: String): String {
+        return getClaims(token).get("providerId", String::class.java)
     }
 
     /**

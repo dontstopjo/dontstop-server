@@ -38,12 +38,12 @@ class OAuth2AuthenticationSuccessHandler(
         // JWT Access Token 및 Refresh Token 생성
         val accessToken = jwtUtil.generateAccessToken(
             customOAuth2User.userId,
-            customOAuth2User.email,
+            customOAuth2User.providerId,
             "user"
         )
         val refreshToken = jwtUtil.generateRefreshToken(
             customOAuth2User.userId,
-            customOAuth2User.email,
+            customOAuth2User.providerId,
             "user"
         )
 
