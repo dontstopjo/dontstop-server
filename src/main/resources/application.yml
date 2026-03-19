@@ -52,6 +52,7 @@ jwt:
   refresh-token-validity: 604800000  # 7일 (밀리초)
 
 server:
+  forward-headers-strategy: native
   port: ${PORT}
 
 logging:
