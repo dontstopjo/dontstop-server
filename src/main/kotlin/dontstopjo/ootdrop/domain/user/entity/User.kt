@@ -10,16 +10,13 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @Column(unique = true, nullable = false)
-    val email: String,
-
     @Column(nullable = false)
     var name: String,
 
     @Column
     var profileImage: String,
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true, nullable = false)
     val providerId: String,
 
     @Column(nullable = false)

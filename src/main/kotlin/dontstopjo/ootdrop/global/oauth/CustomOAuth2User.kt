@@ -9,13 +9,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User
  *
  * @property oauth2User OAuth2 제공자로부터 받은 원본 사용자 정보
  * @property userId 시스템 내부 사용자 ID
- * @property email 사용자 이메일 주소
+ * @property providerId 유니크키
  * @property userName 사용자 이름
  */
 class CustomOAuth2User(
     private val oauth2User: OAuth2User,
     val userId: Long,
-    val email: String,
+    val providerId: String,
     val userName: String,
 ) : OAuth2User {
     /**

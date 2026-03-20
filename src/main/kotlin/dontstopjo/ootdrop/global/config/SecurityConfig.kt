@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
@@ -37,7 +36,6 @@ class SecurityConfig(
      * - CSRF 비활성화 (JWT 사용으로 불필요)
      * - JWT 인증 필터 추가
      * - OAuth2 로그인 설정
-     * - 세션 STATELESS 설정
      */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -57,7 +55,6 @@ class SecurityConfig(
                     ).permitAll()
                     .anyRequest().authenticated()
             }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
             // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 이전에 추가
