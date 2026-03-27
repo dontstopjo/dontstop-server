@@ -3,9 +3,12 @@ package dontstopjo.ootdrop.global.jwt
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.crypto.SecretKey
 
 /**
@@ -16,7 +19,9 @@ import javax.crypto.SecretKey
 @Component
 @EnableConfigurationProperties(JwtProperties::class)
 class JwtUtil(
-    private val jwtProperties: JwtProperties
+    private val jwtProperties: JwtProperties,
+    private val redisTemplate: RedisTemplate<String, String>,
+    @Value("\${spring.datasource.name}") private val dbName: String
 ) {
     private val secretKey: SecretKey = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
@@ -43,7 +48,10 @@ class JwtUtil(
      * @return 생성된 Refresh Token
      */
     fun generateRefreshToken(name: String, id: String, role: String): String {
-        return generateToken(name, id, role, jwtProperties.refreshTokenValidity)
+        val refreshToken = generateToken(name, id, role, jwtProperties.refreshTokenValidity)
+        val key = "${dbName}:refreshToken:${id}"
+        redisTemplate.opsForValue().set(key, refreshToken, jwtProperties.refreshTokenValidity, TimeUnit.MILLISECONDS)
+        return refreshToken
     }
 
     /**
@@ -106,9 +114,50 @@ class JwtUtil(
     fun validateToken(token: String): Boolean {
         return try {
             val claims = getClaims(token)
-            !claims.expiration.before(Date())
+            // 토큰 만료 여부 확인
+            if (claims.expiration.before(Date())) {
+                return false
+            }
+            // 블랙리스트에 있는지 확인
+            val blacklistKey = "${dbName}:blacklist:${token}"
+            redisTemplate.hasKey(blacklistKey) == false
         } catch (e: Exception) {
             false
+        }
+    }
+
+    /**
+     * Redis에 저장된 리프레시 토큰을 가져옵니다.
+     *
+     * @param id 사용자 ID
+     * @return Redis에 저장된 리프레시 토큰 또는 null
+     */
+    fun getRefreshToken(id: String): String? {
+        val key = "${dbName}:refreshToken:${id}"
+        return redisTemplate.opsForValue().get(key)
+    }
+
+    /**
+     * Redis에서 리프레시 토큰을 삭제합니다.
+     *
+     * @param id 사용자 ID
+     */
+    fun deleteRefreshToken(id: String) {
+        val key = "${dbName}:refreshToken:${id}"
+        redisTemplate.delete(key)
+    }
+
+    /**
+     * Access Token을 블랙리스트에 추가합니다.
+     *
+     * @param accessToken 블랙리스트에 추가할 Access Token
+     */
+    fun addAccessTokenToBlacklist(accessToken: String) {
+        val claims = getClaims(accessToken)
+        val expiration = claims.expiration.time - Date().time // 남은 유효 시간
+        if (expiration > 0) {
+            val blacklistKey = "${dbName}:blacklist:${accessToken}"
+            redisTemplate.opsForValue().set(blacklistKey, "logout", expiration, TimeUnit.MILLISECONDS)
         }
     }
 }
