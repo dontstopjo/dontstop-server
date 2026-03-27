@@ -8,7 +8,7 @@ interface OAuth2UserInfo {
     /**
      * OAuth2 제공자가 부여한 고유 사용자 식별자
      */
-    fun getProviderId(): String
+    fun getId(): String
 
     /**
      * OAuth2 제공자 이름 (google, kakao 등)
@@ -32,37 +32,43 @@ interface OAuth2UserInfo {
 }
 
 /**
- * Google OAuth2 제공자의 사용자 정보 구현체
- * Google OAuth2 API로부터 받은 attributes를 OAuth2UserInfo 형식으로 변환
+ * Kakao OAuth2 제공자의 사용자 정보 구현체
+ * Kakao OAuth2 API로부터 받은 attributes를 OAuth2UserInfo 형식으로 변환
  *
- * @property attributes Google OAuth2 제공자로부터 받은 사용자 속성 맵
+ * @property attributes Kakao OAuth2 제공자로부터 받은 사용자 속성 맵
  */
-class GoogleOAuth2UserInfo(
+class KakaoOAuth2UserInfo(
     private val attributes: Map<String, Any>
 ) : OAuth2UserInfo {
 
     /**
-     * Google의 고유 사용자 식별자 (sub 필드)
+     * Kakao의 고유 사용자 식별자 (id 필드)
      */
-    override fun getProviderId(): String = attributes["sub"] as String
+    override fun getId(): String = attributes["id"].toString()
 
     /**
-     * 제공자 이름 반환 (google)
+     * 제공자 이름 반환 (kakao)
      */
-    override fun getProvider(): String = "google"
+    override fun getProvider(): String = "kakao"
+
+    /**
+     * Kakao는 사용자 정보를 kakao_account 내부에 포함함
+     */
+    private val kakaoAccount = attributes["kakao_account"] as? Map<String, Any>
+    private val profile = kakaoAccount?.get("profile") as? Map<String, Any>
 
     /**
      * 사용자 이메일 주소
      */
-    override fun getEmail(): String = attributes["email"] as String
+    override fun getEmail(): String = kakaoAccount?.get("email") as? String ?: ""
 
     /**
      * 사용자 이름
      */
-    override fun getName(): String = attributes["name"] as String
+    override fun getName(): String = profile?.get("nickname") as? String ?: ""
 
     /**
-     * 프로필 이미지 URL (picture 필드)
+     * 프로필 이미지 URL
      */
-    override fun getProfileImage(): String = attributes["picture"] as String
+    override fun getProfileImage(): String = profile?.get("profile_image_url") as? String ?: ""
 }

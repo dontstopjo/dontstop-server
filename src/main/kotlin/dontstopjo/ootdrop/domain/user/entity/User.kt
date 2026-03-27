@@ -1,17 +1,12 @@
 package dontstopjo.ootdrop.domain.user.entity
 
 import jakarta.persistence.*
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "users")
 class User(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-
-    @Column(unique = true, nullable = false)
-    val email: String,
+    val id: String,
 
     @Column(nullable = false)
     var name: String,
@@ -19,18 +14,12 @@ class User(
     @Column
     var profileImage: String,
 
-    @Column(nullable = false, unique = true)
-    val providerId: String,
-
     @Column(nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    @Column(nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    var description: String = "",
 ) {
-    fun updateInfo(name: String, profileImage: String) {
+    fun updateInfo(name: String, profileImage: String, description: String) {
         this.name = name
         this.profileImage = profileImage
-        this.updatedAt = LocalDateTime.now()
+        this.description = description
     }
 }

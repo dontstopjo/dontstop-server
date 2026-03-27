@@ -25,20 +25,20 @@ class CustomOAuth2UserService(
      * @return CustomOAuth2User 커스텀 OAuth2 사용자 객체
      */
     override fun loadUser(userRequest: OAuth2UserRequest): OAuth2User {
-        // 부모 클래스에서 OAuth2 사용자 정보 로드
         val oauth2User = super.loadUser(userRequest)
 
-        val userInfo = GoogleOAuth2UserInfo(oauth2User.attributes)
+        val userInfo = when (userRequest.clientRegistration.registrationId) {
+            "kakao" -> KakaoOAuth2UserInfo(oauth2User.attributes)
+            else -> throw IllegalArgumentException("Unsupported provider")
+        }
 
-        // 사용자 정보 저장 또는 업데이트
-        val user = saveOrUpdate(userInfo)
+        val user = save(userInfo)
 
-        // 커스텀 OAuth2User 객체 생성 및 반환
         return CustomOAuth2User(
             oauth2User = oauth2User,
-            userId = user.id!!,
-            email = user.email,
+            id = user.id,
             userName = user.name,
+            profileImage = user.profileImage,
         )
     }
 
@@ -49,17 +49,17 @@ class CustomOAuth2UserService(
      * @param userInfo OAuth2 제공자로부터 받은 사용자 정보
      * @return User 저장된 사용자 엔티티
      */
-    private fun saveOrUpdate(userInfo: OAuth2UserInfo): User {
-        val providerId = userInfo.getProviderId()
+    private fun save(userInfo: OAuth2UserInfo): User {
+        val id = userInfo.getId()
 
-        // 제공자와 제공자 ID로 기존 사용자 조회
-        val user = userRepository.findByProviderId((providerId))
-            ?: User(
-                    email = userInfo.getEmail(),
-                    name = userInfo.getName(),
-                    profileImage = userInfo.getProfileImage(),
-                    providerId = providerId,
-                )
-        return userRepository.save(user)
+        val user = userRepository.findById(id)
+        if(user != null) return user
+        return userRepository.save(
+            User(
+                id = id,
+                name = userInfo.getName(),
+                profileImage = userInfo.getProfileImage(),
+            )
+        )
     }
 }

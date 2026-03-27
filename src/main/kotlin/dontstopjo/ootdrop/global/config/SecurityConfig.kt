@@ -6,9 +6,9 @@ import dontstopjo.ootdrop.global.oauth.OAuth2AuthenticationFailureHandler
 import dontstopjo.ootdrop.global.oauth.OAuth2AuthenticationSuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
@@ -37,7 +37,6 @@ class SecurityConfig(
      * - CSRF 비활성화 (JWT 사용으로 불필요)
      * - JWT 인증 필터 추가
      * - OAuth2 로그인 설정
-     * - 세션 STATELESS 설정
      */
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -45,22 +44,28 @@ class SecurityConfig(
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers(
-                        "/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/v3/api-docs",
-                        "/v3/api-docs/**",
-                        "/swagger-resources/**",
-                        "/webjars/**",
-                        "/oauth2/**",
-                        "/login/oauth2/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+                    // PermitAll for specific paths
+                    .requestMatchers(HttpMethod.GET, "/posts").permitAll() // 전체 게시글 조회 API
+                    .requestMatchers("/oauth2/success", "/oauth2/failure", "/oauth2/authorization/kakao").permitAll() // OAuth2 콜백 및 시작 엔드포인트
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger UI
+                    .requestMatchers("/swagger-ui", "/v3/api-docs").permitAll() // Swagger UI
+
+                    // Authenticated for specific paths
+                    .requestMatchers(HttpMethod.GET, "/posts/{id}").authenticated() // 단일 게시글 조회 API
+                    .requestMatchers(HttpMethod.GET, "/me").authenticated() // 내 정보 조회
+                    .requestMatchers(HttpMethod.POST, "/me/update").authenticated() // 내 정보 업데이트
+                    .requestMatchers(HttpMethod.POST, "/oauth2/logout").authenticated() // 로그아웃
+                    .requestMatchers(HttpMethod.POST, "/posts").authenticated() // 게시글 생성
+                    .requestMatchers(HttpMethod.PUT, "/posts/{id}").authenticated() // 게시글 수정
+                    .requestMatchers(HttpMethod.DELETE, "/posts/{id}").authenticated() // 게시글 삭제
+                    .requestMatchers("/comment/**").authenticated() // 댓글 관련 모든 작업
+                    .requestMatchers("/mypage/**").authenticated() // 마이페이지 관련 모든 작업
+
+                    // PermitAll for all other paths
+                    .anyRequest().permitAll()
             }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
-            // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 이전에 추가
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .oauth2Login { oauth2 ->
                 oauth2
