@@ -72,6 +72,7 @@ pipeline {
                         -e SPRING_PROFILES_ACTIVE=${env.PHASE} \
                         -e DB_URL=jdbc:mysql://host.docker.internal:3306/${env.DB_NAME} \
                         -e DOMAIN=${env.DOMAIN} \
+                        -e DB_NAME=${env.DB_NAME} \
                         --memory="512m" \
                         --memory-swap="512m" \
                         --log-opt max-size=10m --log-opt max-file=3 \
@@ -111,8 +112,8 @@ pipeline {
 
     post {
         success {
-            echo "✅ 배포 완료! 주소: https://${env.DOMAIN} (DB 스키마: ${env.DB_NAME})"
-            echo "스웨거 문서: https://${env.DOMAIN}/swagger-ui/index.html)"
+            echo "✅ 배포 완료! 주소: ${env.DOMAIN} (DB 스키마: ${env.DB_NAME})"
+            echo "스웨거 문서: ${env.DOMAIN}/swagger-ui/index.html)"
         }
         failure {
             echo "❌ 배포 실패! 로그를 확인하세요."

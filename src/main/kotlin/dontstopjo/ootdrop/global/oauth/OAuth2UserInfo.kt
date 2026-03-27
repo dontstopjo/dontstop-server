@@ -8,7 +8,7 @@ interface OAuth2UserInfo {
     /**
      * OAuth2 제공자가 부여한 고유 사용자 식별자
      */
-    fun getProviderId(): String
+    fun getId(): String
 
     /**
      * OAuth2 제공자 이름 (google, kakao 등)
@@ -44,7 +44,7 @@ class KakaoOAuth2UserInfo(
     /**
      * Kakao의 고유 사용자 식별자 (id 필드)
      */
-    override fun getProviderId(): String = attributes["id"].toString()
+    override fun getId(): String = attributes["id"].toString()
 
     /**
      * 제공자 이름 반환 (kakao)

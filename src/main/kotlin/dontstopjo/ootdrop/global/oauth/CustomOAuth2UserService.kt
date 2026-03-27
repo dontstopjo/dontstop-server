@@ -32,13 +32,13 @@ class CustomOAuth2UserService(
             else -> throw IllegalArgumentException("Unsupported provider")
         }
 
-        val user = saveOrUpdate(userInfo)
+        val user = save(userInfo)
 
         return CustomOAuth2User(
             oauth2User = oauth2User,
-            userId = user.id!!,
-            providerId = user.providerId,
+            id = user.id,
             userName = user.name,
+            profileImage = user.profileImage,
         )
     }
 
@@ -49,16 +49,17 @@ class CustomOAuth2UserService(
      * @param userInfo OAuth2 제공자로부터 받은 사용자 정보
      * @return User 저장된 사용자 엔티티
      */
-    private fun saveOrUpdate(userInfo: OAuth2UserInfo): User {
-        val providerId = userInfo.getProviderId()
+    private fun save(userInfo: OAuth2UserInfo): User {
+        val id = userInfo.getId()
 
-        val user = userRepository.findByProviderId(providerId)
-            ?: User(
+        val user = userRepository.findById(id)
+        if(user != null) return user
+        return userRepository.save(
+            User(
+                id = id,
                 name = userInfo.getName(),
                 profileImage = userInfo.getProfileImage(),
-                providerId = providerId,
             )
-        user.updateInfo(userInfo.getName(), userInfo.getProfileImage())
-        return userRepository.save(user)
+        )
     }
 }

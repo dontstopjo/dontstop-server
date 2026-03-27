@@ -8,15 +8,14 @@ import org.springframework.security.oauth2.core.user.OAuth2User
  * Spring Security의 OAuth2User를 구현하여 인증된 사용자의 세부 정보를 관리
  *
  * @property oauth2User OAuth2 제공자로부터 받은 원본 사용자 정보
- * @property userId 시스템 내부 사용자 ID
- * @property providerId 유니크키
+ * @property id 유니크키
  * @property userName 사용자 이름
  */
 class CustomOAuth2User(
     private val oauth2User: OAuth2User,
-    val userId: Long,
-    val providerId: String,
+    val id: String,
     val userName: String,
+    val profileImage: String,
 ) : OAuth2User {
     /**
      * 사용자 이름 반환

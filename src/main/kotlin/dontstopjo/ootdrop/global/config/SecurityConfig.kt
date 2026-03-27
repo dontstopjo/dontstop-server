@@ -44,20 +44,15 @@ class SecurityConfig(
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers(
-                        "/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/v3/api-docs",
-                        "/v3/api-docs/**",
-                        "/swagger-resources/**",
-                        "/webjars/**",
-                        "/oauth2/**",
-                        "/login/oauth2/**"
-                    ).permitAll()
-                    .anyRequest().authenticated()
+                        "/posts/**",
+                        "/mypage",
+                        "/mypage/**",
+                        "/comment/**"
+                    ).authenticated()
+                    .anyRequest().permitAll()
             }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
-            // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 이전에 추가
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .oauth2Login { oauth2 ->
                 oauth2

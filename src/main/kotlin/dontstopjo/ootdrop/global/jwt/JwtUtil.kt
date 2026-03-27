@@ -20,47 +20,47 @@ class JwtUtil(
 ) {
     private val secretKey: SecretKey = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
+    fun getRefreshTokenValidity(): Long = jwtProperties.refreshTokenValidity
+
     /**
      * Access Token 생성
      *
      * @param userId 사용자 ID
-     * @param providerId 유니크키
+     * @param id 유니크키
      * @param role 사용자 권한
      * @return 생성된 Access Token
      */
-    fun generateAccessToken(userId: Long, providerId: String, role: String): String {
-        return generateToken(userId, providerId, role, jwtProperties.accessTokenValidity)
+    fun generateAccessToken(name: String, id: String, role: String): String {
+        return generateToken(name, id, role, jwtProperties.accessTokenValidity)
     }
 
     /**
      * Refresh Token 생성
      *
      * @param userId 사용자 ID
-     * @param providerId 유니크키
+     * @param id 유니크키
      * @param role 사용자 권한
      * @return 생성된 Refresh Token
      */
-    fun generateRefreshToken(userId: Long, providerId: String, role: String): String {
-        return generateToken(userId, providerId, role, jwtProperties.refreshTokenValidity)
+    fun generateRefreshToken(name: String, id: String, role: String): String {
+        return generateToken(name, id, role, jwtProperties.refreshTokenValidity)
     }
 
     /**
      * JWT 토큰 생성 내부 메서드
      *
-     * @param userId 사용자 ID
-     * @param providerId 사용자 이메일
-     * @param role 사용자 권한
+     * @param name 사용자 이름
+     * @param id 사용자 이메일
      * @param validityInMilliseconds 토큰 유효 시간 (밀리초)
      * @return 생성된 JWT 토큰
      */
-    private fun generateToken(userId: Long, providerId: String, role: String, validityInMilliseconds: Long): String {
+    private fun generateToken(name: String, id: String, role: String, validityInMilliseconds: Long): String {
         val now = Date()
         val validity = Date(now.time + validityInMilliseconds)
 
         return Jwts.builder()
-            .subject(userId.toString())
-            .claim("providerId", providerId)
-            .claim("role", role)
+            .subject(id)
+            .claim("name", name)
             .issuedAt(now)
             .expiration(validity)
             .signWith(secretKey)
@@ -82,33 +82,19 @@ class JwtUtil(
     }
 
     /**
-     * JWT 토큰에서 사용자 ID 추출
+     * JWT 토큰에서 id 추출
      *
      * @param token JWT 토큰
-     * @return 사용자 ID
+     * @return 사용자 id
      */
-    fun getUserId(token: String): Long {
-        return getClaims(token).subject.toLong()
+    fun getId(token: String): String {
+        return getClaims(token).subject
     }
 
-    /**
-     * JWT 토큰에서 providerId 추출
-     *
-     * @param token JWT 토큰
-     * @return 사용자 providerId
-     */
-    fun getProviderId(token: String): String {
-        return getClaims(token).get("providerId", String::class.java)
-    }
-
-    /**
-     * JWT 토큰에서 권한 추출
-     *
-     * @param token JWT 토큰
-     * @return 사용자 권한
-     */
-    fun getRole(token: String): String {
-        return getClaims(token).get("role", String::class.java)
+    fun getName(token: String): String {
+        val claims = getClaims(token)
+        // "name"이라는 키로 저장된 값을 꺼내옴
+        return claims["name"]?.toString() ?: ""
     }
 
     /**
