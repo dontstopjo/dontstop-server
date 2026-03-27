@@ -1,9 +1,13 @@
 ﻿package dontstopjo.ootdrop.domain.auth.controller
 
+import dontstopjo.ootdrop.domain.auth.service.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -11,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/oauth2")
 @Tag(name = "AUTH", description = "OAuth2 콜백 API \n요청은 /oauth2/authorization/kakao")
-class OAuth2Controller {
+class OAuth2Controller(
+    private val authService: AuthService
+) {
 
     @GetMapping("/success")
     @Operation(
@@ -46,5 +52,15 @@ class OAuth2Controller {
             "message" to "로그인 실패",
             "error" to error
         )
+    }
+
+    @PostMapping("/logout")
+    @Operation(
+        summary = "로그아웃",
+        description = "현재 사용자의 액세스 토큰을 무효화하고 리프레시 토큰을 삭제합니다."
+    )
+    fun logout(request: HttpServletRequest): ResponseEntity<Void> {
+        authService.logout(request)
+        return ResponseEntity.ok().build()
     }
 }

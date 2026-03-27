@@ -23,5 +23,7 @@ class UserController {
     fun updateMyInfo(
         @RequestPart("data") updateMyInfoDto: UpdateMyInfoDto,
         @RequestPart(value = "files", required = true) images: List<MultipartFile>,
-    ){}
+    ){
+        TODO()
+    }
 }

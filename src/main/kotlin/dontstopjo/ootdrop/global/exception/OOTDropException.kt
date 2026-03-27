@@ -1,5 +1,5 @@
 package dontstopjo.ootdrop.global.exception
 
-class OOTDropException(
+open class OOTDropException(
     val errorCode: ErrorCode
 ): RuntimeException()
