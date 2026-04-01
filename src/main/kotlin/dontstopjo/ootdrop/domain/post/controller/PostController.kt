@@ -8,6 +8,7 @@ import dontstopjo.ootdrop.domain.post.service.PostService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -25,80 +26,56 @@ class PostController(
     private val postService: PostService
 ) {
     @GetMapping
-    @Operation(
-        summary = "전체 조회",
-    )
-    fun getPosts(): List<PostSummaryResponseDto>{
-        return TODO()
+    @Operation(summary = "전체 조회")
+    fun getPosts(): ResponseEntity<List<PostSummaryResponseDto>> {
+        return ResponseEntity.ok(postService.getPosts())
     }
 
     @GetMapping("/{postId}")
-    @Operation(
-        summary = "1개만 조회",
-    )
-    fun getPost(
-        @PathVariable postId: Int
-    ): PostDetailResponseDto{
-        return TODO()
+    @Operation(summary = "1개만 조회")
+    fun getPost(@PathVariable postId: Int): ResponseEntity<PostDetailResponseDto> {
+        return ResponseEntity.ok(postService.getPost(postId))
     }
 
-    @PostMapping(
-        value = ["/crate"],
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE] // 필수!
-    )
-    @Operation(
-        summary = "생성",
-    )
-    fun cratePost(
+    @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "생성")
+    fun createPost(
         @RequestPart("data") postCrateRequestDto: PostCrateRequestDto,
         @RequestPart(value = "files", required = true) images: List<MultipartFile>,
-    ){
-        TODO()
+    ): ResponseEntity<Unit> {
+        postService.createPost(postCrateRequestDto, images)
+        return ResponseEntity.ok().build()
     }
 
-    @PatchMapping(
-        value = ["/update"],
-        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE] // 필수!
-    )
-    @Operation(
-        summary = "업데이트",
-    )
+    @PatchMapping("/{postId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "업데이트")
     fun updatePost(
-        @RequestPart postId:Int,
+        @PathVariable postId: Int,
         @RequestPart("data") postUpdateRequestDto: PostUpdateRequestDto,
         @RequestPart(value = "files", required = true) files: List<MultipartFile>,
-
-    ){
-        TODO()
+    ): ResponseEntity<Unit> {
+        postService.updatePost(postId, postUpdateRequestDto, files)
+        return ResponseEntity.ok().build()
     }
 
-    @DeleteMapping("delete")
-    @Operation(
-        summary = "삭제",
-    )
-    fun deletePost(
-        @RequestPart postId:Int,
-    ){
-        TODO()
+    @DeleteMapping("/{postId}")
+    @Operation(summary = "삭제")
+    fun deletePost(@PathVariable postId: Int): ResponseEntity<Unit> {
+        postService.deletePost(postId)
+        return ResponseEntity.ok().build()
     }
 
-    @PostMapping("/save")
-    @Operation(
-        summary = "저장 (찜)",
-    )
-    fun save(
-        @RequestPart postId:Int,
-    ){
-        TODO()
+    @PostMapping("/{postId}/save")
+    @Operation(summary = "저장 (찜)")
+    fun save(@PathVariable postId: Int): ResponseEntity<Unit> {
+        postService.savePost(postId)
+        return ResponseEntity.ok().build()
     }
 
-    @PostMapping("/like")
-    @Operation(
-        summary = "좋아요 +1",
-    )
-    fun like(
-        @RequestPart postId:Int,
-    ){
-        TODO()
+    @PostMapping("/{postId}/like")
+    @Operation(summary = "좋아요 +1")
+    fun like(@PathVariable postId: Int): ResponseEntity<Unit> {
+        postService.likePost(postId)
+        return ResponseEntity.ok().build()
     }
 }

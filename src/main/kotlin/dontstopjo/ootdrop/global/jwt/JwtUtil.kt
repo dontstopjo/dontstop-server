@@ -30,7 +30,6 @@ class JwtUtil(
     /**
      * Access Token 생성
      *
-     * @param userId 사용자 ID
      * @param id 유니크키
      * @param role 사용자 권한
      * @return 생성된 Access Token

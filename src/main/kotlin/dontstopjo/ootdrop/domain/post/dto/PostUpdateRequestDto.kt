@@ -10,7 +10,7 @@ data class PostUpdateRequestDto(
     val mainStyle: MainStyle,
     val subStyles: List<SubStyle>,
 
-    val links: List<LinkDto>,
+    val links: List<FashionLink>,
     val isPublic: Boolean,
 
     val imageURLs: List<String>,

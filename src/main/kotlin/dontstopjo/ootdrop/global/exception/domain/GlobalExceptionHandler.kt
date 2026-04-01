@@ -1,6 +1,7 @@
-package dontstopjo.ootdrop.global.exception
+package dontstopjo.ootdrop.global.exception.domain
 
 import dontstopjo.ootdrop.global.dto.ErrorMessageResponse
+import dontstopjo.ootdrop.global.exception.domain.OOTDropException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler

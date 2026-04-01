@@ -1,5 +1,6 @@
 package dontstopjo.ootdrop.domain.post.entity
 
+import dontstopjo.ootdrop.domain.post.dto.FashionLink
 import dontstopjo.ootdrop.domain.post.enums.MainStyle
 import dontstopjo.ootdrop.domain.post.enums.SubStyle
 import dontstopjo.ootdrop.domain.user.entity.User
@@ -7,11 +8,19 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "posts")
+@Table(
+    name = "posts",
+    indexes = [
+        Index(name = "idx_post_main_style", columnList = "main_style"),
+        Index(name = "idx_post_user_id", columnList = "user_id"),
+        Index(name = "idx_post_title", columnList = "title")
+    ]
+)
 class Post(
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -53,12 +62,10 @@ class Post(
     @Column(nullable = false)
     var mainStyle: MainStyle,
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection
     @CollectionTable(
-        name = "post_sub_styles",
-        joinColumns = [JoinColumn(name = "post_id")]
+        name = "post_links", // 별도로 생성될 테이블 이름
+        joinColumns = [JoinColumn(name = "post_id")] // 외래키 설정
     )
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sub_style_name")
-    var subStyles: MutableList<SubStyle> = mutableListOf(),
+    var fashionLink: MutableList<FashionLink> = mutableListOf(),
 )
