@@ -6,7 +6,7 @@ import jakarta.persistence.*
 @Table(name = "users")
 class User(
     @Id
-    val id: String,
+    val id: Long,
 
     @Column(nullable = false)
     var name: String,

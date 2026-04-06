@@ -1,5 +1,6 @@
 package dontstopjo.ootdrop.domain.post.dto
 
+import dontstopjo.ootdrop.domain.comment.dto.CommentDto
 import dontstopjo.ootdrop.domain.post.enums.MainStyle
 import dontstopjo.ootdrop.domain.post.enums.SubStyle
 
@@ -8,7 +9,7 @@ data class PostDetailResponseDto(
     val content: String,
     val imageURLs: List<String>,
     val username: String,
-    val userId: String,
+    val userId: Long,
     val profileImageURL: String,
 
     val likes: Long,
@@ -21,7 +22,7 @@ data class PostDetailResponseDto(
     val mainStyle: MainStyle,
     val subStyles: List<SubStyle>,
 
-    val links: List<LinkAndImageDto>,
+    val links: List<FashionLinkDto>,
 
     val comments: List<CommentDto>,
 )

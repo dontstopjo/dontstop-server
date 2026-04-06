@@ -4,6 +4,7 @@ import dontstopjo.ootdrop.global.jwt.JwtAuthenticationFilter
 import dontstopjo.ootdrop.global.oauth.CustomOAuth2UserService
 import dontstopjo.ootdrop.global.oauth.OAuth2AuthenticationFailureHandler
 import dontstopjo.ootdrop.global.oauth.OAuth2AuthenticationSuccessHandler
+import jakarta.servlet.http.HttpServletResponse
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -13,6 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 /**
  * Spring Security 설정 클래스
@@ -41,6 +45,7 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
+            .cors { it.configurationSource(corsConfigurationSource()) }
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
@@ -73,8 +78,31 @@ class SecurityConfig(
                     .successHandler(oAuth2AuthenticationSuccessHandler)
                     .failureHandler(oAuth2AuthenticationFailureHandler)
             }
+            .exceptionHandling { exception ->
+                exception.authenticationEntryPoint { request, response, authException ->
+                    // 인증되지 않은 사용자가 접근했을 때 리다이렉트(302) 대신 401 Unauthorized 응답
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                }
+            }
 
         return http.build()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        //개발용임 나중에 바꿔야함 TODO()
+        val configuration = CorsConfiguration()
+
+        // 모든 출처, 헤더, 메서드 허용 (개발 환경용)
+        configuration.allowedOriginPatterns = listOf("*")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        configuration.allowedHeaders = listOf("*")
+        configuration.allowCredentials = true
+        configuration.exposedHeaders = listOf("Authorization") // 클라이언트에서 토큰을 읽을 수 있게 노출
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
     }
 
     /**

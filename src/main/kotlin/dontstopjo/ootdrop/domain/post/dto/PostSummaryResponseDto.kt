@@ -9,7 +9,7 @@ data class PostSummaryResponseDto(
     val title: String,
     val imageURL: String,
     val username: String,
-    val userId: String,
+    val userId: Long,
 
     val likes: Long,
     val views: Long,

@@ -1,6 +1,6 @@
 package dontstopjo.ootdrop.domain.post.entity
 
-import dontstopjo.ootdrop.domain.post.entity.key.SavedPostId
+import dontstopjo.ootdrop.domain.post.entity.key.ViewedPostId
 import dontstopjo.ootdrop.domain.user.entity.User
 import jakarta.persistence.ConstraintMode
 import jakarta.persistence.Entity
@@ -13,14 +13,14 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "saved_posts")
-@IdClass(SavedPostId::class) // 복합키 클래스 지정
-class SavedPost(
+@Table(name = "viewed_posts")
+@IdClass(ViewedPostId::class)
+class ViewedPost(
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "user_id",
-        foreignKey = ForeignKey(name = "FK_SAVED_POST_ON_USER", value = ConstraintMode.CONSTRAINT)
+        foreignKey = ForeignKey(name = "FK_VIEWED_POST_ON_USER", value = ConstraintMode.CONSTRAINT)
     )
     val user: User,
 
@@ -28,7 +28,7 @@ class SavedPost(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "post_id",
-        foreignKey = ForeignKey(name = "FK_SAVED_POST_ON_POST", value = ConstraintMode.CONSTRAINT)
+        foreignKey = ForeignKey(name = "FK_VIEWED_POST_ON_POST", value = ConstraintMode.CONSTRAINT)
     )
     val post: Post
 )

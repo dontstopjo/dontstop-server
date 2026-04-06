@@ -50,9 +50,9 @@ class CustomOAuth2UserService(
      * @return User 저장된 사용자 엔티티
      */
     private fun save(userInfo: OAuth2UserInfo): User {
-        val id = userInfo.getId()
+        val id = userInfo.getId().toLong()
 
-        val user = userRepository.findById(id)
+        val user = userRepository.findUserById(id)
         if(user != null) return user
         return userRepository.save(
             User(

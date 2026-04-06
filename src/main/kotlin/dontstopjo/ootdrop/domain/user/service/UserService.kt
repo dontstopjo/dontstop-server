@@ -19,7 +19,7 @@ class UserService(
     fun getMyInfo(): UserInfoDto {
         val user = getCurrentUser()
         return UserInfoDto(
-            username = user,
+            username = user.name,
             profileImageURL = user.profileImage,
             description = user.description
         )
@@ -55,9 +55,9 @@ class UserService(
         )
     }
 
-    private fun getCurrentUser() = userRepository.findById(
+    private fun getCurrentUser() = userRepository.findUserById(
         (SecurityContextHolder.getContext().authentication?.principal
             ?: throw UserNotFoundException())
-            .toString()
+            .toString().toLong()
     ) ?: throw UserNotFoundException()
 }

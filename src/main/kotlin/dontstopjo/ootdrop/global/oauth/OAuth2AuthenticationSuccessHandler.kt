@@ -63,9 +63,9 @@ class OAuth2AuthenticationSuccessHandler(
             TimeUnit.MILLISECONDS
         )
 
-        // 프론트엔드 리다이렉트 URL 구성 (Access Token만 전달)
         val targetUrl = UriComponentsBuilder.fromUriString("/oauth2/success")
             .queryParam("accessToken", accessToken)
+            .queryParam("refreshToken", refreshToken)
             .build()
             .toUriString()
 

@@ -34,19 +34,18 @@ class JwtUtil(
      * @param role 사용자 권한
      * @return 생성된 Access Token
      */
-    fun generateAccessToken(name: String, id: String, role: String): String {
+    fun generateAccessToken(name: String, id: Long, role: String): String {
         return generateToken(name, id, role, jwtProperties.accessTokenValidity)
     }
 
     /**
      * Refresh Token 생성
      *
-     * @param userId 사용자 ID
-     * @param id 유니크키
+     * @param id 사용자 ID
      * @param role 사용자 권한
      * @return 생성된 Refresh Token
      */
-    fun generateRefreshToken(name: String, id: String, role: String): String {
+    fun generateRefreshToken(name: String, id: Long, role: String): String {
         val refreshToken = generateToken(name, id, role, jwtProperties.refreshTokenValidity)
         val key = "${dbName}:refreshToken:${id}"
         redisTemplate.opsForValue().set(key, refreshToken, jwtProperties.refreshTokenValidity, TimeUnit.MILLISECONDS)
@@ -61,12 +60,12 @@ class JwtUtil(
      * @param validityInMilliseconds 토큰 유효 시간 (밀리초)
      * @return 생성된 JWT 토큰
      */
-    private fun generateToken(name: String, id: String, role: String, validityInMilliseconds: Long): String {
+    private fun generateToken(name: String, id: Long, role: String, validityInMilliseconds: Long): String {
         val now = Date()
         val validity = Date(now.time + validityInMilliseconds)
 
         return Jwts.builder()
-            .subject(id)
+            .subject(id.toString())
             .claim("name", name)
             .issuedAt(now)
             .expiration(validity)
@@ -94,8 +93,8 @@ class JwtUtil(
      * @param token JWT 토큰
      * @return 사용자 id
      */
-    fun getId(token: String): String {
-        return getClaims(token).subject
+    fun getId(token: String): Long {
+        return getClaims(token).subject.toLong()
     }
 
     fun getName(token: String): String {
@@ -131,7 +130,7 @@ class JwtUtil(
      * @param id 사용자 ID
      * @return Redis에 저장된 리프레시 토큰 또는 null
      */
-    fun getRefreshToken(id: String): String? {
+    fun getRefreshToken(id: Long): String? {
         val key = "${dbName}:refreshToken:${id}"
         return redisTemplate.opsForValue().get(key)
     }
@@ -141,7 +140,7 @@ class JwtUtil(
      *
      * @param id 사용자 ID
      */
-    fun deleteRefreshToken(id: String) {
+    fun deleteRefreshToken(id: Long) {
         val key = "${dbName}:refreshToken:${id}"
         redisTemplate.delete(key)
     }

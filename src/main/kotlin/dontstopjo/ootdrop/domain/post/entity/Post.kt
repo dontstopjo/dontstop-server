@@ -2,10 +2,18 @@ package dontstopjo.ootdrop.domain.post.entity
 
 import dontstopjo.ootdrop.domain.post.dto.FashionLink
 import dontstopjo.ootdrop.domain.post.enums.MainStyle
-import dontstopjo.ootdrop.domain.post.enums.SubStyle
 import dontstopjo.ootdrop.domain.user.entity.User
 import jakarta.persistence.*
 import java.time.LocalDateTime
+
+@Embeddable
+data class PostImage(
+    @Column(nullable = false)
+    val imageKey: String,
+
+    @Column(nullable = false, name = "image_order")
+    val order: Int
+)
 
 @Entity
 @Table(
@@ -20,7 +28,7 @@ class Post(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    val id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -34,11 +42,11 @@ class Post(
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
-        name = "post_image_keys",
+        name = "post_images", // 테이블명 변경 (권장)
         joinColumns = [JoinColumn(name = "post_id")]
     )
-    @Column(nullable = false)
-    var imageKeys: List<String>,
+    @OrderColumn(name = "list_index")
+    var images: MutableList<PostImage> = mutableListOf(),
 
     @Column(nullable = false)
     var isPublic: Boolean,
@@ -48,15 +56,6 @@ class Post(
 
     @Column(nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
-
-    @Column(nullable = false)
-    var likes: Long = 0,
-
-    @Column(nullable = false)
-    var views: Long = 0,
-
-    @Column(nullable = false)
-    var saves: Long = 0,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

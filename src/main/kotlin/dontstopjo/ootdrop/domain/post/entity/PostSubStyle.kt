@@ -14,13 +14,16 @@ import jakarta.persistence.*
 class PostSubStyle(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    val id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(
+        name = "post_id",
+        foreignKey = ForeignKey(name = "FK_POST_SUB_STYLE_ON_POST", value = ConstraintMode.CONSTRAINT)
+    )
     val post: Post,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "sub_style_name", nullable = false)
-    val subStyleName: SubStyle
+    @Column(name = "sub_style", nullable = false)
+    val subStyle: SubStyle
 )

@@ -5,7 +5,7 @@ import dontstopjo.ootdrop.domain.post.enums.SubStyle
 
 data class PostCrateRequestDto(
     val title : String,
-    val description: String,
+    val content: String,
 
     val mainStyle: MainStyle,
     val subStyles: List<SubStyle>,

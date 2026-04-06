@@ -6,9 +6,11 @@ import dontstopjo.ootdrop.domain.post.dto.PostSummaryResponseDto
 import dontstopjo.ootdrop.domain.post.dto.PostUpdateRequestDto
 import dontstopjo.ootdrop.domain.post.service.PostService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Encoding
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -27,55 +29,87 @@ class PostController(
 ) {
     @GetMapping
     @Operation(summary = "전체 조회")
-    fun getPosts(): ResponseEntity<List<PostSummaryResponseDto>> {
-        return ResponseEntity.ok(postService.getPosts())
+    fun getPosts(): List<PostSummaryResponseDto> {
+        return postService.getPosts()
     }
 
     @GetMapping("/{postId}")
-    @Operation(summary = "1개만 조회")
-    fun getPost(@PathVariable postId: Int): ResponseEntity<PostDetailResponseDto> {
-        return ResponseEntity.ok(postService.getPost(postId))
+    @Operation(summary = "1개만 조회 \nTODO()\n지금 링크의 imageURL이 비정상적인 값임 참고하셈")
+    fun getPostDetail(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userId: Long
+    ): PostDetailResponseDto {
+        return postService.getPostDetail(postId, userId)
     }
 
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "생성")
     fun createPost(
-        @RequestPart("data") postCrateRequestDto: PostCrateRequestDto,
+        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = [Content(encoding = [Encoding(name = "data", contentType = "application/json")])]
+        )
+        @RequestPart("data")
+        postCrateRequestDto: PostCrateRequestDto,
+
         @RequestPart(value = "files", required = true) images: List<MultipartFile>,
-    ): ResponseEntity<Unit> {
-        postService.createPost(postCrateRequestDto, images)
-        return ResponseEntity.ok().build()
+        @AuthenticationPrincipal userId: Long
+    ){
+        postService.createPost(postCrateRequestDto, images, userId)
     }
 
     @PatchMapping("/{postId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "업데이트")
     fun updatePost(
-        @PathVariable postId: Int,
+        @PathVariable postId: Long,
         @RequestPart("data") postUpdateRequestDto: PostUpdateRequestDto,
-        @RequestPart(value = "files", required = true) files: List<MultipartFile>,
-    ): ResponseEntity<Unit> {
-        postService.updatePost(postId, postUpdateRequestDto, files)
-        return ResponseEntity.ok().build()
+        @RequestPart(value = "files", required = false) files: List<MultipartFile>,
+        @AuthenticationPrincipal userId: Long
+    ){
+        postService.updatePost(postId, postUpdateRequestDto, files, userId)
     }
 
     @DeleteMapping("/{postId}")
     @Operation(summary = "삭제")
-    fun deletePost(@PathVariable postId: Int): ResponseEntity<Unit> {
-        postService.deletePost(postId)
-        return ResponseEntity.ok().build()
+    fun deletePost(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userId: Long
+    ){
+        postService.deletePost(postId, userId)
     }
 
     @PostMapping("/{postId}/save")
     @Operation(summary = "저장 (찜)")
-    fun save(@PathVariable postId: Int): ResponseEntity<Unit> {
-        postService.savePost(postId)
-        return ResponseEntity.ok().build()
+    fun save(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userId: Long
+    ){
+        postService.savePost(postId, userId)
+    }
+
+    @PostMapping("/{postId}/unsave")
+    @Operation(summary = "저장 (찜) 해제")
+    fun unsave(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userId: Long
+    ){
+        postService.unSavePost(postId, userId)
     }
 
     @PostMapping("/{postId}/like")
     @Operation(summary = "좋아요 +1")
-    fun like(@PathVariable postId: Int): ResponseEntity<Unit> {
-        postService.likePost(postId)
-        return ResponseEntity.ok().build()
+    fun like(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userId: Long
+    ){
+        postService.likePost(postId, userId)
+    }
+
+    @PostMapping("/{postId}/unlike")
+    @Operation(summary = "좋아요 -1")
+    fun unLike(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userId: Long
+    ){
+        postService.unLikePost(postId, userId)
     }
 }

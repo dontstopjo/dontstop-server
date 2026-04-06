@@ -1,4 +1,4 @@
-package dontstopjo.ootdrop.domain.post.dto
+package dontstopjo.ootdrop.domain.comment.dto
 
 data class CommentDto(
     val text: String,
