@@ -73,6 +73,7 @@ pipeline {
                         -e DB_URL=jdbc:mysql://host.docker.internal:3306/${env.DB_NAME} \
                         -e DOMAIN=${env.DOMAIN} \
                         -e DB_NAME=${env.DB_NAME} \
+                        -e REDIS_DB_URL=172.17.0.1 \
                         --memory="512m" \
                         --memory-swap="512m" \
                         --log-opt max-size=10m --log-opt max-file=3 \
