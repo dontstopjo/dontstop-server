@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository
 interface PostSubStyleRepository : JpaRepository<PostSubStyle, Long> {
     fun findByPost(post: Post): MutableList<PostSubStyle>
     fun deleteByPost(post: Post)
+    fun deleteAllByPost(post: Post)
 }

@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ViewedPostRepository : JpaRepository<ViewedPost, Long> {
     fun countByPost(post: Post): Long
+    fun deleteAllByPost(post: Post)
 }

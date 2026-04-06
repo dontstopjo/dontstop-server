@@ -185,6 +185,12 @@ class PostService(
     fun deletePost(postId: Long, userId: Long) {
         val post = postRepository.findPostById(postId)?: throw PostNotFoundException()
         if(post.user.id != userId) throw NotPostOwner()
+
+        postSubStyleRepository.deleteAllByPost(post)
+        likedPostRepository.deleteAllByPost(post)
+        viewedPostRepository.deleteAllByPost(post)
+        savedPostRepository.deleteAllByPost(post)
+
         post.images.forEach { s3Service.deleteFile(it.imageKey) }
         postRepository.delete(post)
     }
