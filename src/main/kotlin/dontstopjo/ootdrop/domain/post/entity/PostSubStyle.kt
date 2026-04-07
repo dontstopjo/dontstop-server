@@ -8,7 +8,7 @@ import jakarta.persistence.*
     name = "posts_sub_styles",
     indexes = [
         Index(name = "idx_post_id", columnList = "post_id"),
-        Index(name = "idx_sub_style_name", columnList = "sub_style_name")
+        Index(name = "idx_sub_style_name", columnList = "sub_style")
     ]
 )
 class PostSubStyle(
