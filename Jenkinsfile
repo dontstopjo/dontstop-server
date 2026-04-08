@@ -75,7 +75,7 @@ pipeline {
                         -e DB_NAME=${env.DB_NAME} \
                         -e REDIS_DB_URL=172.17.0.1 \
                         --memory="512m" \
-                        --memory-swap="512m" \
+                        --memory-swap="2g" \
                         --log-opt max-size=10m --log-opt max-file=3 \
                         ${env.APP_NAME}:${env.PHASE}
                     """
