@@ -84,7 +84,7 @@ class PostService(
             imageURLs = post.images.sortedBy { it.order }.map { it.imageKey },
             username = post.user.name,
             userId = post.user.id,
-            profileImageURL = post.user.profileImage,
+            profileImageURL = post.user.profileImageUrl,
 
             likes = likedPostRepository.countByPost(post),
             views = viewedPostRepository.countByPost(post),
@@ -95,7 +95,6 @@ class PostService(
 
             mainStyle = post.mainStyle,
             subStyles = postSubStyleRepository.findByPost(post).map { it.subStyle },
-
             links = post.fashionLink.map {
                 FashionLinkDto(
                     link = it.link,
@@ -107,7 +106,7 @@ class PostService(
             comments = commentRepository.findByPost(post).map {
                 CommentDto(
                     text = it.content,
-                    profileImageURL = it.user.profileImage,
+                    profileImageURL = it.user.profileImageUrl,
                     username = it.user.name,
                 )
             }

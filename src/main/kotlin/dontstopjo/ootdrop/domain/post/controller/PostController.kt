@@ -8,14 +8,15 @@ import dontstopjo.ootdrop.domain.post.service.PostService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Encoding
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
@@ -45,7 +46,7 @@ class PostController(
     @PostMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "생성")
     fun createPost(
-        @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        @RequestBody(
             content = [Content(encoding = [Encoding(name = "data", contentType = "application/json")])]
         )
         @RequestPart("data")
@@ -57,7 +58,7 @@ class PostController(
         postService.createPost(postCrateRequestDto, images, userId)
     }
 
-    @PatchMapping("/{postId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PutMapping("/{postId}", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "업데이트")
     fun updatePost(
         @PathVariable postId: Long,
@@ -86,7 +87,7 @@ class PostController(
         postService.savePost(postId, userId)
     }
 
-    @PostMapping("/{postId}/unsave")
+    @DeleteMapping("/{postId}/unsave")
     @Operation(summary = "저장 (찜) 해제")
     fun unsave(
         @PathVariable postId: Long,
@@ -104,7 +105,7 @@ class PostController(
         postService.likePost(postId, userId)
     }
 
-    @PostMapping("/{postId}/unlike")
+    @DeleteMapping("/{postId}/unlike")
     @Operation(summary = "좋아요 -1")
     fun unLike(
         @PathVariable postId: Long,

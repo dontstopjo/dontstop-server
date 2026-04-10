@@ -20,29 +20,23 @@ class UserService(
         val user = getCurrentUser()
         return UserInfoDto(
             username = user.name,
-            profileImageURL = user.profileImage,
+            profileImageURL = user.profileImageUrl,
             description = user.description
         )
     }
 
     @Transactional
-    fun updateMyInfo(updateMyInfoDto: UpdateMyInfoDto, images: List<MultipartFile>): UserInfoDto {
+    fun updateMyInfo(updateMyInfoDto: UpdateMyInfoDto, image: MultipartFile): UserInfoDto {
         val user = getCurrentUser()
 
-        val imageUrl = if (images.isNotEmpty()) {
-            // 기존 이미지가 있다면 삭제
-            if (user.profileImage.isNotBlank()) {
-                s3Service.deleteFile(user.profileImage)
-            }
-            // 새 이미지 업로드
-            s3Service.uploadFile("profiles", images[0])
-        } else {
-            user.profileImage
+        if(s3Service.isOurS3Url(user.profileImageUrl)) {
+            s3Service.deleteFile(s3Service.getKeyFromUrl(user.profileImageUrl))
         }
+        val profileImageUrl = s3Service.uploadFile("profiles", image)
 
         user.updateInfo(
             name = updateMyInfoDto.username,
-            profileImage = imageUrl,
+            profileImageUrl = profileImageUrl,
             description = updateMyInfoDto.description
         )
 
@@ -50,7 +44,7 @@ class UserService(
 
         return UserInfoDto(
             username = updatedUser.name,
-            profileImageURL = updatedUser.profileImage,
+            profileImageURL = updatedUser.profileImageUrl,
             description = updatedUser.description
         )
     }

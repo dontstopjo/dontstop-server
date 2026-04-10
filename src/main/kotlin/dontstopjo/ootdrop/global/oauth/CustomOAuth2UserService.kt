@@ -38,7 +38,7 @@ class CustomOAuth2UserService(
             oauth2User = oauth2User,
             id = user.id,
             userName = user.name,
-            profileImage = user.profileImage,
+            profileImage = user.profileImageUrl,
         )
     }
 
@@ -58,7 +58,7 @@ class CustomOAuth2UserService(
             User(
                 id = id,
                 name = userInfo.getName(),
-                profileImage = userInfo.getProfileImage(),
+                profileImageUrl = userInfo.getProfileImage()?: "https://k.kakaocdn.net/dn/default_profile.png"
             )
         )
     }

@@ -40,6 +40,7 @@ dependencies {
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("software.amazon.awssdk:s3:2.30.36")
+    implementation("org.jsoup:jsoup:1.15.3")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
     compileOnly("org.projectlombok:lombok")

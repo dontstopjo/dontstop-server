@@ -12,14 +12,14 @@ class User(
     var name: String,
 
     @Column
-    var profileImage: String,
+    var profileImageUrl: String,
 
     @Column(nullable = false)
     var description: String = "",
 ) {
-    fun updateInfo(name: String, profileImage: String, description: String) {
+    fun updateInfo(name: String, profileImageUrl: String, description: String) {
         this.name = name
-        this.profileImage = profileImage
+        this.profileImageUrl = profileImageUrl
         this.description = description
     }
 }

@@ -89,6 +89,22 @@ class S3Service(
     }
 
     /**
+     * 주어진 URL이 우리 S3 버킷의 URL인지 확인합니다.
+     * @param url 확인할 URL
+     * @return 우리 S3 버킷의 URL이면 true, 아니면 false
+     */
+    fun isOurS3Url(url: String): Boolean {
+        if (url.isBlank()) return false
+
+        val baseUrl = if (awsS3Properties.endpoint.isNotBlank()) {
+            "${awsS3Properties.endpoint.trimEnd('/')}/${awsS3Properties.bucket}/"
+        } else {
+            "https://${awsS3Properties.bucket}.s3.${awsS3Properties.region}.amazonaws.com/"
+        }
+        return url.startsWith(baseUrl)
+    }
+
+    /**
      * 업로드할 파일의 유효성을 검사합니다.
      * - 파일이 비어있는지 확인
      * - 파일 타입이 이미지인지 확인 (MIME 타입 기준)

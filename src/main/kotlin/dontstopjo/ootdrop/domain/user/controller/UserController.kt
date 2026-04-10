@@ -6,7 +6,7 @@ import dontstopjo.ootdrop.domain.user.service.UserService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
@@ -20,13 +20,13 @@ class UserController(
         return ResponseEntity.ok(userService.getMyInfo())
     }
 
-    @PostMapping(
+    @PutMapping(
         value = ["/me/update"],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
     fun updateMyInfo(
         @RequestPart("data") updateMyInfoDto: UpdateMyInfoDto,
-        @RequestPart(value = "files", required = true) images: List<MultipartFile>,
+        @RequestPart(value = "files", required = true) images: MultipartFile,
     ): ResponseEntity<UserInfoDto> {
         val updatedUser = userService.updateMyInfo(updateMyInfoDto, images)
         return ResponseEntity.ok(updatedUser)

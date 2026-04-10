@@ -28,7 +28,7 @@ interface OAuth2UserInfo {
     /**
      * 사용자 프로필 이미지 URL (선택적)
      */
-    fun getProfileImage(): String
+    fun getProfileImage(): String?
 }
 
 /**
