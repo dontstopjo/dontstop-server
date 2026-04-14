@@ -6,5 +6,5 @@ data class FashionLinkDto(
     val link: String,
     val description: String,
     val category: FashionCategory,
-    val imageURL: String
+    val imageURL: String?
 )

@@ -35,7 +35,7 @@ class PostController(
     }
 
     @GetMapping("/{postId}")
-    @Operation(summary = "1개만 조회 \nTODO()\n지금 링크의 imageURL이 비정상적인 값임 참고하셈")
+    @Operation(summary = "1개만 조회")
     fun getPostDetail(
         @PathVariable postId: Long,
         @AuthenticationPrincipal userId: Long

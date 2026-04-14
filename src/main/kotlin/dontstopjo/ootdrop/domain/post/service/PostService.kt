@@ -41,7 +41,8 @@ class PostService(
     private val savedPostRepository: SavedPostRepository,
     private val viewedPostRepository: ViewedPostRepository,
 
-    private val s3Service: S3Service // 범용 S3Service 주입
+    private val s3Service: S3Service, // 범용 S3Service 주입
+    private val imageLinkService: ImageLinkService
 ) {
     @Transactional(readOnly = true)
     fun getPosts(): List<PostSummaryResponseDto> {
@@ -100,7 +101,7 @@ class PostService(
                     link = it.link,
                     description = it.description,
                     category = it.category,
-                    imageURL = "나중에 개발함" // TODO()
+                    imageURL = imageLinkService.extractClothingImage(it.link)
                 )
             },
             comments = commentRepository.findByPost(post).map {
