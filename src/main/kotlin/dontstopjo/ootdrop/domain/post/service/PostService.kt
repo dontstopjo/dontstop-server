@@ -101,7 +101,7 @@ class PostService(
                     link = it.link,
                     description = it.description,
                     category = it.category,
-                    imageURL = imageLinkService.extractClothingImage(it.link)
+                    imageURL = imageLinkService.extractRepresentativeImage(it.link)
                 )
             },
             comments = commentRepository.findByPost(post).map {

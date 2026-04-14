@@ -1,64 +1,100 @@
 package dontstopjo.ootdrop.domain.post.service
 
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.springframework.stereotype.Service
 
 @Service
 class ImageLinkService {
 
-    fun extractClothingImage(url: String): String? {
+    fun extractRepresentativeImage(url: String): String? {
         return try {
-            // 1. 브라우저인 것처럼 헤더를 설정하여 차단 방지 + 타임아웃 설정
             val document = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+                .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
                 .timeout(5000)
                 .get()
 
-            // 2. [1순위] 메타 데이터 확인 (대부분의 사이트에서 가장 정확한 대표 이미지)
-            val ogImage = document.select("meta[property=og:image]").attr("abs:content")
-            if (ogImage.isNotBlank()) return ogImage
+            // 1순위: Open Graph & Twitter Card (디코/카톡 방식)
+            val metaImage = extractMetaImage(document)
+            if (metaImage != null) return metaImage
 
-            val twitterImage = document.select("meta[name=twitter:image]").attr("abs:content")
-            if (twitterImage.isNotBlank()) return twitterImage
+            // 2순위: JSON-LD (구조화 데이터 - 쇼핑몰/블로그에서 매우 정확함)
+            val jsonLdImage = extractJsonLdImage(document)
+            if (jsonLdImage != null) return jsonLdImage
 
-            // 3. [2순위] 본문 이미지 태그 분석
-            val imgElements = document.select("img")
+            // 3순위: 본문 내 점수 기반 베스트 이미지
+            val bestBodyImage = extractBestBodyImage(document)
+            if (bestBodyImage != null) return bestBodyImage
 
-            for (element in imgElements) {
-                // src뿐만 아니라 Lazy Loading용 속성들도 함께 체크
-                val imageUrl = (element.attr("abs:data-src").takeIf { it.isNotBlank() }
-                    ?: element.attr("abs:data-original").takeIf { it.isNotBlank() }
-                    ?: element.attr("abs:src")).lowercase()
+            // 4순위: 최후의 수단 (고해상도 파비콘/아이콘)
+            extractFavicon(document)
 
-                if (imageUrl.isBlank()) continue
-
-                // 4. 의류 사진이 아닐 확률이 높은 노이즈 필터링
-                val isNoise = imageUrl.contains("logo") ||
-                        imageUrl.contains("icon") ||
-                        imageUrl.contains("banner") ||
-                        imageUrl.contains("button") ||
-                        imageUrl.contains("profile") ||
-                        imageUrl.contains("ad_") ||
-                        imageUrl.contains("loading") ||
-                        imageUrl.endsWith(".gif") || // 움짤 제외
-                        imageUrl.endsWith(".svg")    // 벡터 아이콘 제외
-/*
-                // 5. 간단한 크기 유추 (alt 값에 옷 관련 키워드가 있으면 가산점)
-                val altText = element.attr("alt").lowercase()
-                val isClothingContext = altText.contains("자켓") || altText.contains("팬츠") ||
-                        altText.contains("티셔츠") || altText.contains("옷") ||
-                        altText.contains("coat") || altText.contains("pants")
-*/
-                if (!isNoise) {
-                    // 노이즈가 아니면서 옷 키워드가 있거나,
-                    // 키워드가 없더라도 최소한의 필터링을 통과한 첫 번째 이미지를 반환
-                    return element.attr("abs:src")
-                }
-            }
-            null
         } catch (e: Exception) {
-            // 로그를 남기거나 null 반환
             null
         }
+    }
+
+    private fun extractMetaImage(doc: Document): String? {
+        val selectors = listOf(
+            "meta[property=og:image]",
+            "meta[name=twitter:image]",
+            "meta[name=image]",
+            "link[rel=image_src]"
+        )
+        for (selector in selectors) {
+            val url = doc.select(selector).attr("abs:content").ifBlank { doc.select(selector).attr("abs:href") }
+            if (url.isNotBlank()) return url
+        }
+        return null
+    }
+
+    private fun extractJsonLdImage(doc: Document): String? {
+        val scripts = doc.select("script[type=application/ld+json]")
+        for (script in scripts) {
+            val content = script.data()
+            // 정규식으로 간단하게 "image": "URL" 추출 (Jackson 사용 권장)
+            val regex = """"image"\s*:\s*"([^"]+)"""".toRegex()
+            val match = regex.find(content)
+            if (match != null) return match.groupValues[1]
+        }
+        return null
+    }
+
+    private fun extractBestBodyImage(doc: Document): String? {
+        val images = doc.select("img")
+        var bestImg: String? = null
+        var maxScore = -100
+
+        for (img in images) {
+            val src = img.attr("abs:src")
+            if (src.isBlank() || src.contains("data:image")) continue
+
+            var score = 0
+            val alt = img.attr("alt").lowercase()
+            val className = img.className().lowercase()
+
+            // 가산점 로직
+            if (alt.contains("상품") || alt.contains("product") || alt.contains("main")) score += 30
+            if (className.contains("representative") || className.contains("primary")) score += 40
+
+            // 감점 로직 (노이즈 제거)
+            if (src.contains("logo") || src.contains("icon") || src.contains("banner")) score -= 50
+            if (src.endsWith(".gif") || src.endsWith(".svg")) score -= 100
+
+            if (score > maxScore) {
+                maxScore = score
+                bestImg = src
+            }
+        }
+        return if (maxScore > -10) bestImg else null
+    }
+
+    private fun extractFavicon(doc: Document): String? {
+        val iconSelectors = listOf(
+            "link[rel~=(apple-touch-icon|shortcut|icon)]"
+        )
+        return iconSelectors.map { doc.select(it).attr("abs:href") }
+            .firstOrNull { it.isNotBlank() }
     }
 }
