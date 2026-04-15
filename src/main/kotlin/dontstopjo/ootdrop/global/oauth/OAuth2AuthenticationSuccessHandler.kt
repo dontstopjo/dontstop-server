@@ -63,7 +63,7 @@ class OAuth2AuthenticationSuccessHandler(
             TimeUnit.MILLISECONDS
         )
 
-        val targetUrl = UriComponentsBuilder.fromUriString("https://dontstop-client-53g9smdy0-urikkiris-projects.vercel.app")
+        val targetUrl = UriComponentsBuilder.fromUriString(" https://dontstop-client-53g9smdy0-urikkiris-projects.vercel.app/oauth2/success")
             .queryParam("accessToken", accessToken)
             .queryParam("refreshToken", refreshToken)
             .build()
