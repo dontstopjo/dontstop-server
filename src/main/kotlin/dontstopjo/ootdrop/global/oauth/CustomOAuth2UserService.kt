@@ -51,9 +51,9 @@ class CustomOAuth2UserService(
      */
     private fun save(userInfo: OAuth2UserInfo): User {
         val id = userInfo.getId().toLong()
-
         val user = userRepository.findUserById(id)
         if(user != null) return user
+
         return userRepository.save(
             User(
                 id = id,
