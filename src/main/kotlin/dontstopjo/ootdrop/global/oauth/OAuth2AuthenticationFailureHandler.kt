@@ -26,7 +26,7 @@ class OAuth2AuthenticationFailureHandler : SimpleUrlAuthenticationFailureHandler
         exception: AuthenticationException
     ) {
         // 에러 메시지를 쿼리 파라미터로 포함하여 실패 페이지로 리다이렉트
-        val targetUrl = "https://dontstop-client-53g9smdy0-urikkiris-projects.vercel.app/oauth2/failure?error=${exception.localizedMessage}"
+        val targetUrl = "https://dontstop-client.vercel.app/oauth2/failure?error=${exception.localizedMessage}"
 
         redirectStrategy.sendRedirect(request, response, targetUrl)
     }
