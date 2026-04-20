@@ -57,12 +57,13 @@ class PostService(
     @Transactional
     fun getPostDetail(postId: Long, userId: Long): PostDetailResponseDto {
         val post = postRepository.findPostById(postId)?: throw PostNotFoundException()
+        val user = userRepository.findUserById(userId)?: throw UserNotFoundException()
         if(!post.isPublic && post.user.id != userId){
             throw ForbiddenException()
         }
         viewedPostRepository.save(
             ViewedPost(
-                user = post.user,
+                user = user,
                 post = post,
             )
         )
@@ -79,8 +80,8 @@ class PostService(
             views = viewedPostRepository.countByPost(post),
             saves = savedPostRepository.countByPost(post),
 
-            isSaved = savedPostRepository.existsByPostAndUser(post, post.user) ,
-            isLiked = likedPostRepository.existsByPostAndUser(post, post.user),
+            isSaved = savedPostRepository.existsByPostAndUser(post, user) ,
+            isLiked = likedPostRepository.existsByPostAndUser(post, user),
 
             mainStyle = post.mainStyle,
             subStyles = postSubStyleRepository.findByPost(post).map { it.subStyle },
