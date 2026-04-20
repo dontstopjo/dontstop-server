@@ -37,15 +37,14 @@ class JwtAuthenticationFilter(
             // 토큰이 존재하고 유효한 경우
             if (token != null && jwtUtil.validateToken(token)) {
                 // 토큰에서 사용자 정보 추출
-                val email = jwtUtil.getEmail(token)
-                val role = jwtUtil.getRole(token)
+                val id = jwtUtil.getId(token)
 
                 // 권한 정보 생성
-                val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
+                val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"))
 
                 // 인증 토큰 생성
                 val authentication = UsernamePasswordAuthenticationToken(
-                    email,
+                    id,
                     null,
                     authorities
                 )

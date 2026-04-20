@@ -1,0 +1,20 @@
+package dontstopjo.ootdrop.domain.post.dto
+
+import dontstopjo.ootdrop.domain.post.enums.MainStyle
+import dontstopjo.ootdrop.domain.post.enums.SubStyle
+
+data class PostSummaryResponseDto(
+    val postId: Long,
+
+    val title: String,
+    val imageURL: String,
+    val username: String,
+    val userId: Long,
+
+    val likes: Long,
+    val views: Long,
+    val saves: Long,
+
+    val mainStyle: MainStyle,
+    val subStyles: List<SubStyle>,
+)
