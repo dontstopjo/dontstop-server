@@ -5,6 +5,9 @@ import dontstopjo.ootdrop.domain.user.dto.UpdateMyInfoDto
 import dontstopjo.ootdrop.domain.user.dto.UserMyPageDto
 import dontstopjo.ootdrop.domain.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Encoding
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -33,7 +36,10 @@ class UserController(
     @Operation(summary = "내정보 수정")
     fun updateMyInfo(
         @AuthenticationPrincipal userId: Long,
-        @RequestPart("data", required = false) updateMyInfoDto: UpdateMyInfoDto?,
+        @RequestBody(
+            content = [Content(encoding = [Encoding(name = "data", contentType = "application/json")])],
+            required = false
+        ) updateMyInfoDto: UpdateMyInfoDto?,
         @RequestPart(value = "files", required = false) images: MultipartFile?,
     ){
         userService.updateMyInfo(updateMyInfoDto, images, userId)
