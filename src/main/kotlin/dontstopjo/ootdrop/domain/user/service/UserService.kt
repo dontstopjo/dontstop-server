@@ -53,6 +53,7 @@ class UserService(
         userRepository.save(user)
     }
 
+    @Transactional
     fun readMyPage(userId: Long): UserMyPageDto{
         val user = userRepository.findUserById(userId)?: throw UserNotFoundException()
         val publicPosts = postRepository.findByUserAndIsPublicOrderByCreatedAtDesc(user, true)
