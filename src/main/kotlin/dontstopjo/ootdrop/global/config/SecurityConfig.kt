@@ -63,6 +63,10 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/posts").authenticated() // 게시글 생성
                     .requestMatchers(HttpMethod.PUT, "/posts/{id}").authenticated() // 게시글 수정
                     .requestMatchers(HttpMethod.DELETE, "/posts/{id}").authenticated() // 게시글 삭제
+                    .requestMatchers(HttpMethod.POST, "/{postId}/save").authenticated() // 좋아요
+                    .requestMatchers(HttpMethod.POST, "/{postId}/unsave").authenticated() // 안 좋아요
+                    .requestMatchers(HttpMethod.POST, "/{postId}/like").authenticated() // 저장
+                    .requestMatchers(HttpMethod.POST, "/{postId}/unlike").authenticated() // 안 저장
                     .requestMatchers("/comment/{postId}").authenticated() // 댓글 관련 모든 작업
                     .requestMatchers("/mypage/**").authenticated() // 마이페이지 관련 모든 작업
 
