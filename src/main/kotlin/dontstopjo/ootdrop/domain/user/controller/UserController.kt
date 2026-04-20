@@ -30,10 +30,11 @@ class UserController(
         value = ["/me/update"],
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
+    @Operation(summary = "내정보 수정")
     fun updateMyInfo(
         @AuthenticationPrincipal userId: Long,
-        @RequestPart("data") updateMyInfoDto: UpdateMyInfoDto,
-        @RequestPart(value = "files", required = false) images: MultipartFile,
+        @RequestPart("data", required = false) updateMyInfoDto: UpdateMyInfoDto?,
+        @RequestPart(value = "files", required = false) images: MultipartFile?,
     ){
         userService.updateMyInfo(updateMyInfoDto, images, userId)
     }
