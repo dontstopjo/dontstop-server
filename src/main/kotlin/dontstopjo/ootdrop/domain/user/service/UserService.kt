@@ -42,7 +42,7 @@ class UserService(
             if(image == null)
                 user.profileImageUrl
             else
-                s3Service.getKeyFromUrl(s3Service.uploadFile("profiles", image))
+                s3Service.buildImageUrl (s3Service.uploadFile("profiles", image))
 
         user.updateInfo(
             name = updateMyInfoDto?.username?: user.name,
