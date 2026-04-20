@@ -70,7 +70,7 @@ class PostService(
         return PostDetailResponseDto(
             title = post.title,
             content = post.content,
-            imageURLs = post.images.sortedBy { it.order }.map { it.imageKey },
+            imageURLs = post.images.sortedBy { it.order }.map { s3Service.buildImageUrl(it.imageKey) },
             username = post.user.name,
             userId = post.user.id,
             profileImageURL = post.user.profileImageUrl,
