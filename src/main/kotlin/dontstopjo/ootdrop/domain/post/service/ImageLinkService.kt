@@ -30,7 +30,7 @@ class ImageLinkService {
             // 4순위: 최후의 수단 (고해상도 파비콘/아이콘)
             extractFavicon(document)
 
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

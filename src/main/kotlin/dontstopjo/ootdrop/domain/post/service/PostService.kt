@@ -20,7 +20,6 @@ import dontstopjo.ootdrop.domain.post.repository.SavedPostRepository
 import dontstopjo.ootdrop.domain.post.repository.ViewedPostRepository
 import dontstopjo.ootdrop.domain.user.repository.UserRepository
 import dontstopjo.ootdrop.global.exception.ForbiddenException
-import dontstopjo.ootdrop.global.exception.IdNotFoundException
 import dontstopjo.ootdrop.global.exception.NotPostOwner
 import dontstopjo.ootdrop.global.exception.PostNotFoundException
 import dontstopjo.ootdrop.global.exception.UserNotFoundException
@@ -42,27 +41,16 @@ class PostService(
     private val viewedPostRepository: ViewedPostRepository,
 
     private val s3Service: S3Service, // 범용 S3Service 주입
-    private val imageLinkService: ImageLinkService
+    private val imageLinkService: ImageLinkService,
+
+    private val postToPostSummaryResponseDtoService: PostToPostSummaryResponseDtoService
 ) {
     @Transactional(readOnly = true)
     fun getPosts(): List<PostSummaryResponseDto> {
         return postRepository.findAllByOrderByCreatedAtDesc()
             .filter{ it.isPublic }
             .map { post ->
-                PostSummaryResponseDto(
-                    title = post.title,
-                    imageURL = s3Service.buildImageUrl(post.images[0].imageKey),
-                    username = post.user.name,
-                    userId = post.user.id,
-                    postId = post.id?: throw IdNotFoundException(),
-
-                    likes = likedPostRepository.countByPost(post),
-                    views = viewedPostRepository.countByPost(post),
-                    saves = savedPostRepository.countByPost(post),
-
-                    mainStyle = post.mainStyle,
-                    subStyles = postSubStyleRepository.findByPost(post).map { it.subStyle }
-                )
+                postToPostSummaryResponseDtoService.postToPostSummaryResponseDto(post)
             }
     }
 
@@ -109,6 +97,7 @@ class PostService(
                     text = it.content,
                     profileImageURL = it.user.profileImageUrl,
                     username = it.user.name,
+                    userId = it.user.id
                 )
             }
         )

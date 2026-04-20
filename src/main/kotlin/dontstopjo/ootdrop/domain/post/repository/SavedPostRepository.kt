@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository
 interface SavedPostRepository : JpaRepository<SavedPost, Long> {
     fun countByPost(post: Post): Long
     fun existsByPostAndUser(post: Post, user: User): Boolean
+    fun findAllByUser(user: User): List<SavedPost>
     fun deleteAllByPost(post: Post)
 }

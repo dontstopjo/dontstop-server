@@ -4,4 +4,5 @@ data class CommentDto(
     val text: String,
     val profileImageURL: String,
     val username: String,
+    val userId: Long,
 )

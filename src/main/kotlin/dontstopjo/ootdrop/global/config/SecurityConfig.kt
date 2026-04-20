@@ -63,7 +63,7 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/posts").authenticated() // 게시글 생성
                     .requestMatchers(HttpMethod.PUT, "/posts/{id}").authenticated() // 게시글 수정
                     .requestMatchers(HttpMethod.DELETE, "/posts/{id}").authenticated() // 게시글 삭제
-                    .requestMatchers("/comment/**").authenticated() // 댓글 관련 모든 작업
+                    .requestMatchers("/comment/{postId}").authenticated() // 댓글 관련 모든 작업
                     .requestMatchers("/mypage/**").authenticated() // 마이페이지 관련 모든 작업
 
                     // PermitAll for all other paths

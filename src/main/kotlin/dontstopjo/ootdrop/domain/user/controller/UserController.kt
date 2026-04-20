@@ -2,10 +2,14 @@ package dontstopjo.ootdrop.domain.user.controller
 
 import dontstopjo.ootdrop.domain.user.dto.UserInfoDto
 import dontstopjo.ootdrop.domain.user.dto.UpdateMyInfoDto
+import dontstopjo.ootdrop.domain.user.dto.UserMyPageDto
 import dontstopjo.ootdrop.domain.user.service.UserService
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
@@ -16,8 +20,10 @@ class UserController(
     private val userService: UserService
 ) {
     @GetMapping("/me")
-    fun info(): ResponseEntity<UserInfoDto> {
-        return ResponseEntity.ok(userService.getMyInfo())
+    fun info(
+        @AuthenticationPrincipal userId: Long,
+    ): ResponseEntity<UserInfoDto> {
+        return ResponseEntity.ok(userService.getMyInfo(userId))
     }
 
     @PutMapping(
@@ -25,10 +31,19 @@ class UserController(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE]
     )
     fun updateMyInfo(
+        @AuthenticationPrincipal userId: Long,
         @RequestPart("data") updateMyInfoDto: UpdateMyInfoDto,
-        @RequestPart(value = "files", required = true) images: MultipartFile,
-    ): ResponseEntity<UserInfoDto> {
-        val updatedUser = userService.updateMyInfo(updateMyInfoDto, images)
-        return ResponseEntity.ok(updatedUser)
+        @RequestPart(value = "files", required = false) images: MultipartFile,
+    ){
+        userService.updateMyInfo(updateMyInfoDto, images, userId)
+    }
+
+
+    @GetMapping("/mypage/{userId}")
+    @Operation(summary = "마이페이지")
+    fun readMyPage(
+        @PathVariable userId: Long,
+    ): UserMyPageDto {
+        return userService.readMyPage(userId)
     }
 }
