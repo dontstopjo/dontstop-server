@@ -84,7 +84,6 @@ class SecurityConfig(
             }
             .exceptionHandling { exception ->
                 exception.authenticationEntryPoint { request, response, authException ->
-                    // 인증되지 않은 사용자가 접근했을 때 리다이렉트(302) 대신 401 Unauthorized 응답
                     response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
                 }
             }

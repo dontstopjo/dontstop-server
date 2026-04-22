@@ -119,8 +119,17 @@ class PostService(
 
             isPublic = requestDto.isPublic,
             mainStyle = requestDto.mainStyle,
+            fashionLink = requestDto.links.toMutableList()
         )
         postRepository.save(post)
+        postSubStyleRepository.saveAll(
+            requestDto.subStyles.map {
+                PostSubStyle(
+                    post = post,
+                    subStyle = it
+                )
+            }
+        )
     }
 
     @Transactional
@@ -157,9 +166,10 @@ class PostService(
         post.images = savedImageUrls
         post.isPublic = requestDto.isPublic
         post.mainStyle = requestDto.mainStyle
+        post.fashionLink = requestDto.links.toMutableList()
         post.updatedAt = LocalDateTime.now()
 
-        postSubStyleRepository.deleteByPost(post)
+        postSubStyleRepository.deleteAllByPost(post)
         postSubStyleRepository.saveAll(
             requestDto.subStyles.map {
                 PostSubStyle(
@@ -197,12 +207,12 @@ class PostService(
 
     @Transactional
     fun unSavePost(postId: Long, userId: Long) {
-        savedPostRepository.delete(
-            SavedPost(
-                user = userRepository.findUserById(userId)?: throw UserNotFoundException(),
-                post = postRepository.findPostById(postId)?: throw PostNotFoundException()
-            )
-        )
+        val user = userRepository.findUserById(userId) ?: throw UserNotFoundException()
+        val post = postRepository.findPostById(postId) ?: throw PostNotFoundException()
+        val savedPost = savedPostRepository.findByPostAndUser(post, user)
+        if (savedPost != null) {
+            savedPostRepository.delete(savedPost)
+        }
     }
 
     @Transactional
@@ -217,11 +227,11 @@ class PostService(
 
     @Transactional
     fun unLikePost(postId: Long, userId: Long) {
-        likedPostRepository.delete(
-            LikedPost(
-                user = userRepository.findUserById(userId)?: throw UserNotFoundException(),
-                post = postRepository.findPostById(postId)?: throw PostNotFoundException()
-            )
-        )
+        val user = userRepository.findUserById(userId) ?: throw UserNotFoundException()
+        val post = postRepository.findPostById(postId) ?: throw PostNotFoundException()
+        val likedPost = likedPostRepository.findByPostAndUser(post, user)
+        if (likedPost != null) {
+            likedPostRepository.delete(likedPost)
+        }
     }
 }
