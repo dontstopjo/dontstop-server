@@ -35,14 +35,15 @@ class UserService(
     @Transactional
     fun updateMyInfo(updateMyInfoDto: UpdateMyInfoDto?, image: MultipartFile?, userId: Long) {
         val user = userRepository.findUserById(userId)?: throw UserNotFoundException()
-        if(s3Service.isOurS3Url(user.profileImageUrl)) {
-            s3Service.deleteFile(s3Service.getKeyFromUrl(user.profileImageUrl))
-        }
         val profileImageUrl =
-            if(image == null)
+            if(image == null) {
                 user.profileImageUrl
-            else
+            } else {
+                if(s3Service.isOurS3Url(user.profileImageUrl)) {
+                    s3Service.deleteFile(s3Service.getKeyFromUrl(user.profileImageUrl))
+                }
                 s3Service.buildImageUrl (s3Service.uploadFile("profiles", image))
+            }
 
         user.updateInfo(
             name = updateMyInfoDto?.username?: user.name,
