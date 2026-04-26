@@ -4,6 +4,8 @@ import dontstopjo.ootdrop.domain.post.dto.PostCrateRequestDto
 import dontstopjo.ootdrop.domain.post.dto.PostDetailResponseDto
 import dontstopjo.ootdrop.domain.post.dto.PostSummaryResponseDto
 import dontstopjo.ootdrop.domain.post.dto.PostUpdateRequestDto
+import dontstopjo.ootdrop.domain.post.enums.MainStyle
+import dontstopjo.ootdrop.domain.post.enums.SubStyle
 import dontstopjo.ootdrop.domain.post.service.PostService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -18,13 +20,14 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/posts")
-@Tag(name = "POST", description = "게시물 API 검색은 나중에 만든다")
+@Tag(name = "POST", description = "게시물 API")
 class PostController(
     private val postService: PostService
 ) {
@@ -32,6 +35,16 @@ class PostController(
     @Operation(summary = "전체 조회")
     fun getPosts(): List<PostSummaryResponseDto> {
         return postService.getPosts()
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "게시물 검색")
+    fun searchPosts(
+        @RequestParam(required = false) keyword: String?,
+        @RequestParam(required = false) mainStyle: MainStyle?,
+        @RequestParam(required = false) subStyles: List<SubStyle>?
+    ): List<PostSummaryResponseDto> {
+        return postService.searchPosts(keyword, mainStyle, subStyles)
     }
 
     @GetMapping("/{postId}")

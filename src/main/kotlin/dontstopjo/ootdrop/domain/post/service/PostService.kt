@@ -13,6 +13,8 @@ import dontstopjo.ootdrop.domain.post.entity.PostImage
 import dontstopjo.ootdrop.domain.post.entity.PostSubStyle
 import dontstopjo.ootdrop.domain.post.entity.SavedPost
 import dontstopjo.ootdrop.domain.post.entity.ViewedPost
+import dontstopjo.ootdrop.domain.post.enums.MainStyle
+import dontstopjo.ootdrop.domain.post.enums.SubStyle
 import dontstopjo.ootdrop.domain.post.repository.LikedPostRepository
 import dontstopjo.ootdrop.domain.post.repository.PostRepository
 import dontstopjo.ootdrop.domain.post.repository.PostSubStyleRepository
@@ -49,6 +51,19 @@ class PostService(
     fun getPosts(): List<PostSummaryResponseDto> {
         return postRepository.findAllByOrderByCreatedAtDesc()
             .filter{ it.isPublic }
+            .map { post ->
+                postToPostSummaryResponseDtoService.postToPostSummaryResponseDto(post)
+            }
+    }
+
+    @Transactional(readOnly = true)
+    fun searchPosts(
+        keyword: String?,
+        mainStyle: MainStyle?,
+        subStyles: List<SubStyle>?
+    ): List<PostSummaryResponseDto> {
+        return postRepository.findPostsByCriteria(keyword, mainStyle, subStyles)
+            .filter { it.isPublic }
             .map { post ->
                 postToPostSummaryResponseDtoService.postToPostSummaryResponseDto(post)
             }
