@@ -76,10 +76,10 @@ class PostController(
     fun updatePost(
         @PathVariable postId: Long,
         @RequestPart("data") postUpdateRequestDto: PostUpdateRequestDto,
-        @RequestPart(value = "files", required = false) files: List<MultipartFile>,
+        @RequestPart(value = "files", required = false) files: List<MultipartFile>?,
         @AuthenticationPrincipal userId: Long
     ){
-        postService.updatePost(postId, postUpdateRequestDto, files, userId)
+        postService.updatePost(postId, postUpdateRequestDto, files.orEmpty(), userId)
     }
 
     @DeleteMapping("/{postId}")
